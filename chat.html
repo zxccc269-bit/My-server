@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>الشات | WandSMP</title>
+<style>
+  :root{--bg:#12161c;--card:#1b212b;--text:#e8edf4;--muted:#9aa6b6;--green:#5cb85c;--border:#2a3240;--red:#e05555}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Segoe UI",Tahoma,Arial,sans-serif;background:var(--bg);color:var(--text);
+    height:100vh;display:flex;flex-direction:column}
+  header{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;
+    border-bottom:1px solid var(--border);background:var(--card);gap:10px}
+  header a{color:var(--green);text-decoration:none;font-weight:700}
+  header h1{font-size:1.1rem}
+  #who{display:flex;gap:10px;align-items:center;font-size:.9rem;color:var(--muted)}
+  #who b{color:var(--text)}
+  .ghost{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:4px 10px;cursor:pointer;font-family:inherit;font-size:.85rem}
+  .ghost:hover{color:var(--text)}
+  .ghost.red:hover{color:var(--red);border-color:var(--red)}
+  .tabs{display:flex;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto}
+  .tab{flex:1;min-width:86px;padding:12px 6px;text-align:center;cursor:pointer;color:var(--muted);font-weight:700;font-size:.9rem;white-space:nowrap;border-bottom:3px solid transparent}
+  .tab.on{color:var(--green);border-bottom-color:var(--green)}
+  #status{background:#3a1a1a;color:#ffb0b0;text-align:center;padding:8px 20px;font-size:.9rem}
+  #err{color:#ff7b7b;font-size:.9rem;text-align:center;min-height:22px;padding:6px 20px;background:var(--card)}
+  .pane{flex:1;display:flex;flex-direction:column;min-height:0}
+  .scroll{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:10px}
+  .msg,.post{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 14px;max-width:600px;word-wrap:break-word}
+  .msg.mine{border-color:var(--green)}
+  .msg .n,.post .n{color:var(--green);font-weight:700;font-size:.9rem}
+  .msg .t,.post .t{color:var(--muted);font-size:.75rem;margin-inline-start:8px}
+  .msg .b,.post .b{margin-top:4px;white-space:pre-wrap}
+  .acts{float:left;display:flex;gap:6px}
+  .acts button{background:none;border:0;color:var(--muted);cursor:pointer;font-size:.8rem;font-family:inherit}
+  .acts button:hover{color:var(--red)}
+  .acts button.fr:hover{color:var(--green)}
+  .badge{font-size:.72rem;border-radius:6px;padding:1px 6px;margin-inline-start:6px;font-weight:700}
+  .badge:empty{display:none}
+  .b-owner{background:#4a3a10;color:#f5c542}
+  .b-admin{background:#4a1d1d;color:#ff8a8a}
+  .b-mod{background:#1d3250;color:#7db4ff}
+  .chip{border-radius:20px;padding:2px 10px;font-size:.8rem;font-weight:700;margin-inline-end:6px}
+  .t-sell{background:#1f3d24;color:#7ed87e}
+  .t-buy{background:#1d3250;color:#7db4ff}
+  .t-other{background:#333a46;color:#c4cbd6}
+  .post .foot{margin-top:8px}
+  .notice{text-align:center;color:var(--muted);font-size:.85rem;padding:6px}
+  form{display:flex;gap:10px;padding:14px 20px;border-top:1px solid var(--border);background:var(--card);flex-wrap:wrap}
+  input[type=text],input[type=password],input:not([type]),textarea,select{flex:1;min-width:140px;background:var(--bg);border:1px solid var(--border);color:var(--text);
+    border-radius:10px;padding:12px 14px;font-size:1rem;font-family:inherit}
+  textarea{min-height:64px;resize:vertical}
+  select{flex:none}
+  input:focus,textarea:focus{outline:2px solid var(--green)}
+  button.main{background:var(--green);color:#0b1a0b;border:0;border-radius:10px;padding:12px 22px;
+    font-weight:700;font-size:1rem;cursor:pointer;font-family:inherit}
+  .switch{width:100%;text-align:center;color:var(--muted);font-size:.9rem}
+  .switch a{color:var(--green);cursor:pointer;font-weight:700}
+  .hidden{display:none !important}
+  .box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  label.sw{display:flex;gap:8px;align-items:center;cursor:pointer;font-weight:700}
+  label.sw input{width:18px;height:18px;min-width:0;flex:none;accent-color:var(--green)}
+  .conv{width:100%;text-align:right;background:var(--card);border:1px solid var(--border);color:var(--text);
+    border-radius:10px;padding:12px 14px;cursor:pointer;font-family:inherit;font-size:1rem;display:flex;justify-content:space-between}
+  .conv:hover{border-color:var(--green)}
+  .conv small{color:var(--muted)}
+  .frow{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:8px;flex-wrap:wrap}
+  .frow .tx{flex:1;min-width:160px;font-size:.9rem}
+  h3.sec{font-size:1rem;color:var(--green);margin-top:6px}
+  .plain{border:0;padding:0;background:none;margin-top:8px}
+  #dmPane,#grPane,#tkPane{position:relative}
+  .tag{font-size:.75rem;border-radius:6px;padding:1px 7px;font-weight:700}
+  .tag.open{background:#1f3d24;color:#7ed87e}.tag.closed{background:#333a46;color:#c4cbd6}
+  .nb{display:inline-block;min-width:18px;height:18px;line-height:18px;border-radius:9px;background:#e03131;color:#fff;font-size:.7rem;font-weight:700;text-align:center;margin-inline-start:6px;padding:0 5px;vertical-align:middle}
+  .hot{border-color:#e03131 !important;background:#2a1618 !important}
+  .newpill{display:inline-block;background:#e03131;color:#fff;border-radius:10px;padding:1px 9px;font-size:.72rem;font-weight:700;margin-inline-start:8px;vertical-align:middle}
+  .dot2{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--red);margin-inline-start:6px}
+  #gate{display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:30px;text-align:center}
+  body.locked #gate{display:flex}
+  body.locked .tabs,body.locked .pane,body.locked #status,body.locked #callBar,body.locked #who{display:none !important}
+  .nm{font-weight:700}
+  .fx-glow{text-shadow:0 0 8px currentColor}
+  .fx-shine{background:linear-gradient(90deg,var(--c),#fff,var(--c));background-size:200% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:shine 2.5s linear infinite}
+  @keyframes shine{to{background-position:200% center}}
+  .emo{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:8px 12px;cursor:pointer;font-size:1.1rem;color:var(--text);font-family:inherit}
+  #emojiPanel{position:fixed;bottom:70px;right:12px;left:12px;max-width:380px;margin:0 auto;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:10px;display:grid;grid-template-columns:repeat(8,1fr);gap:4px;z-index:20;max-height:220px;overflow-y:auto}
+  #emojiPanel button{background:none;border:0;font-size:1.4rem;cursor:pointer;border-radius:8px;padding:4px}
+  #emojiPanel button:hover{background:var(--bg)}
+  .rec{background:#7a1f1f !important;color:#fff !important}
+</style>
+</head>
+<body class="locked">
+
+<header>
+  <h1>💬 شات WandSMP</h1>
+  <div id="who" class="hidden"><span>أهلاً <b id="whoName"></b> <span class="bw" id="whoBadge"></span></span></div>
+  <a href="index.html">← رجوع للموقع</a>
+</header>
+
+<div class="tabs">
+  <div class="tab on" id="tabPub">🌍 العام</div>
+  <div class="tab" id="tabPost">📢 المنشورات</div>
+  <div class="tab" id="tabFr">👥 الأصدقاء</div>
+  <div class="tab" id="tabDm">🔒 خاص</div>
+  <div class="tab" id="tabGr">👨‍👩‍👧 القروبات</div>
+  <div class="tab" id="tabTk">🎫 التذاكر</div>
+  <div class="tab hidden" id="tabSt">🛡️ الإدارة</div>
+</div>
+<div id="status" class="hidden"></div>
+<div id="err"></div>
+<div id="callBar" class="hidden" style="background:#1d3a24;padding:10px 20px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap">
+  <b id="callText"></b>
+  <div class="row">
+    <button class="main" id="callAccept" style="padding:6px 16px">قبول</button>
+    <button class="ghost red" id="callEnd">إنهاء</button>
+  </div>
+</div>
+<audio id="remoteAudio" autoplay playsinline></audio>
+
+<div id="gate">
+  <div id="gateLoading">⏳ جاري التحقق من حسابك...</div>
+  <div id="gateLogin" class="hidden">
+    <div style="font-size:3rem">🔒</div>
+    <h2 style="margin:8px 0">لازم تسوي حساب أول</h2>
+    <p class="notice">ما تقدر تستخدم الشات أو المنشورات أو الأصدقاء بدون حساب.</p>
+    <p class="notice" id="gateBan" style="color:#ff7b7b;font-weight:700"></p>
+    <a href="index.html#account" style="display:inline-block;margin-top:10px;padding:12px 26px;border-radius:10px;font-weight:700;background:var(--green);color:#0b1a0b;text-decoration:none">إنشاء حساب / تسجيل دخول</a>
+  </div>
+</div>
+
+<!-- ======== الشات العام ======== -->
+<div class="pane" id="pubPane">
+  <div class="scroll" id="msgs">
+    <div class="notice">لا تكتب معلومات شخصية (اسمك الحقيقي، عنوانك، رقمك). الروابط ممنوعة.</div>
+  </div>
+
+
+  <form id="chatForm" class="hidden">
+    <input id="text" placeholder="اكتب رسالتك..." maxlength="200" autocomplete="off" required>
+    <button type="button" class="emo" data-t="text" title="إيموجي">😀</button>
+    <button class="main">إرسال</button>
+  </form>
+</div>
+
+<!-- ======== المنشورات ======== -->
+<div class="pane hidden" id="postPane">
+  <div class="scroll" id="postList"></div>
+  <div id="postLogged" class="notice">سجّل دخول من تبويب "العام" عشان تنشر.</div>
+  <form id="postForm" class="hidden">
+    <select id="postType">
+      <option value="sell">🟢 بيع</option>
+      <option value="buy">🔵 شراء</option>
+      <option value="other">⚪ إعلان</option>
+    </select>
+    <textarea id="postText" placeholder="اكتب منشورك... مثال: أبيع 10 دايموند، كلموني خاص" maxlength="300" required></textarea>
+    <button type="button" class="emo" data-t="postText" title="إيموجي">😀</button>
+    <button class="main">نشر</button>
+  </form>
+</div>
+
+<!-- ======== الأصدقاء ======== -->
+<div class="pane hidden" id="frPane">
+  <div class="scroll">
+    <div id="frLogged" class="notice">سجّل دخول أول من تبويب "العام" عشان تضيف أصدقاء.</div>
+    <div id="frArea" class="hidden" style="display:flex;flex-direction:column;gap:10px">
+      <form id="addForm" style="border:1px solid var(--border);border-radius:12px;padding:10px">
+        <input id="addName" placeholder="اسم اللاعب اللي تبغى تضيفه" maxlength="16" required>
+        <button class="main">إضافة صديق</button>
+      </form>
+      <h3 class="sec">طلبات الصداقة</h3>
+      <div id="reqList"></div>
+      <h3 class="sec">أصدقائي</h3>
+      <div id="friendList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ======== الرسائل الخاصة ======== -->
+<div class="pane hidden" id="dmPane">
+  <div class="scroll" id="dmMain">
+    <div id="dmLogged" class="notice hidden">سجّل دخول أول من تبويب "العام" عشان تستخدم الرسائل الخاصة.</div>
+
+    <div id="dmArea" class="hidden" style="display:flex;flex-direction:column;gap:12px">
+      <div class="box" style="display:flex;flex-direction:column;gap:10px">
+        <label class="sw"><input type="checkbox" id="dmToggle"> فعّل الرسائل الخاصة</label>
+        <label class="sw"><input type="checkbox" id="openToggle"> اقبل رسائل من أي أحد (مو بس الأصدقاء)</label>
+        <div class="notice" style="text-align:right;padding:0">
+          الرسائل الخاصة مقفلة افتراضياً. الأفضل تخلي الخيار الثاني مطفي، وبهالحالة محد يراسلك إلا أصدقاءك.
+          لا تعطي أحد معلوماتك الشخصية، والإدارة تقدر تراجع الرسائل لو وصل بلاغ.
+        </div>
+      </div>
+
+      <div id="dmOffMsg" class="notice">فعّل الرسائل الخاصة من فوق عشان تبدأ محادثة.</div>
+
+      <div id="dmOn" class="hidden" style="display:flex;flex-direction:column;gap:12px">
+        <div class="notice">تبدأ محادثة من تبويب 👥 الأصدقاء، أو من زر 💬 تواصل في المنشورات.</div>
+        <div id="inboxList" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="convo" class="pane hidden" style="position:absolute;inset:0;background:var(--bg);z-index:5">
+    <div class="row" style="padding:12px 20px;background:var(--card);border-bottom:1px solid var(--border);justify-content:space-between">
+      <div class="row"><button class="ghost" id="back">← رجوع</button><b id="convoName"></b></div>
+      <div class="row"><button class="ghost" id="callBtn">📞 اتصال</button><button class="ghost red" id="blockBtn">حظر</button></div>
+    </div>
+    <div class="scroll" id="dmMsgs"></div>
+    <form id="dmForm">
+      <input id="dmText" placeholder="اكتب رسالة خاصة..." maxlength="200" autocomplete="off" required>
+      <button type="button" class="emo" data-t="dmText" title="إيموجي">😀</button>
+      <button type="button" class="emo" id="micBtn" title="رسالة صوتية (للأصدقاء)">🎤</button>
+      <button type="button" class="emo hidden" id="micCancel" title="إلغاء">✖</button>
+      <button class="main">إرسال</button>
+    </form>
+  </div>
+</div>
+
+<!-- ======== القروبات ======== -->
+<div class="pane hidden" id="grPane">
+  <div class="scroll">
+    <div class="box">
+      <h3 class="sec">➕ سوّ قروب جديد</h3>
+      <form id="grForm" class="plain">
+        <input id="grName" placeholder="اسم القروب (مثال: شلة الدايموند)" maxlength="24" required>
+        <button class="main">إنشاء</button>
+      </form>
+      <div class="notice" style="text-align:right;padding:6px 0 0">تقدر تدعو أصدقاءك بس (اللي بينك وبينهم صداقة). أقصى عدد 20 عضو.</div>
+    </div>
+    <h3 class="sec">📨 دعوات القروبات</h3>
+    <div id="grInvList"></div>
+    <h3 class="sec">قروباتي</h3>
+    <div id="grList"></div>
+  </div>
+
+  <div id="gview" class="pane hidden" style="position:absolute;inset:0;background:var(--bg);z-index:5">
+    <div class="row" style="padding:12px 20px;background:var(--card);border-bottom:1px solid var(--border);justify-content:space-between">
+      <div class="row"><button class="ghost" id="gBack">← رجوع</button><b id="gTitle"></b></div>
+      <div class="row">
+        <button class="ghost" id="gInfoBtn">👥 الأعضاء</button>
+        <button class="ghost red" id="gLeave">خروج</button>
+        <button class="ghost red hidden" id="gDel">🗑 حذف القروب</button>
+      </div>
+    </div>
+    <div id="gInfo" class="box hidden" style="margin:10px 20px 0">
+      <div id="gMembers"></div>
+      <div class="row" style="margin-top:8px">
+        <select id="gInvSel"></select>
+        <button class="ghost" id="gInvBtn">دعوة صديق</button>
+      </div>
+    </div>
+    <div class="scroll" id="gMsgs"></div>
+    <form id="gForm">
+      <input id="gText" placeholder="اكتب للقروب..." maxlength="200" autocomplete="off" required>
+      <button type="button" class="emo" data-t="gText" title="إيموجي">😀</button>
+      <button class="main">إرسال</button>
+    </form>
+  </div>
+</div>
+
+<!-- ======== التذاكر ======== -->
+<div class="pane hidden" id="tkPane">
+  <div class="scroll">
+    <div class="box">
+      <h3 class="sec">🎫 افتح تذكرة للإدارة</h3>
+      <form id="tkForm" class="plain">
+        <select id="tkType">
+          <option value="store">🛒 المتجر (سؤال عن رتبة أو شراء)</option>
+          <option value="glitch">🐞 الإبلاغ عن قلتش</option>
+          <option value="hack">🚨 الإبلاغ عن هاك / مشكلة مع لاعب</option>
+        </select>
+        <input id="tkTitle" placeholder="عنوان قصير" maxlength="60" required>
+        <textarea id="tkText" placeholder="اشرح بالتفصيل: وش صار؟ مين اللاعب؟ وين ومتى؟" maxlength="1000" required></textarea>
+        <button class="main">إرسال التذكرة</button>
+      </form>
+      <div class="notice" style="text-align:right;padding:6px 0 0">
+        الإدارة بترد عليك هنا. لا تكتب كلمة سر أو رقم بطاقة أو معلومات شخصية أبداً، والإدارة ما راح تطلب منك هذي الأشياء. أي دفع أو شراء لازم يكون بعلم أهلك.
+      </div>
+    </div>
+    <h3 class="sec">🟢 تذاكري المفتوحة</h3>
+    <div id="tkList"></div>
+    <h3 class="sec">🗄️ أرشيف التذاكر المغلقة</h3>
+    <div id="tkArchive"></div>
+  </div>
+
+  <div id="tkView" class="pane hidden" style="position:absolute;inset:0;background:var(--bg);z-index:5">
+    <div class="row" style="padding:12px 20px;background:var(--card);border-bottom:1px solid var(--border);justify-content:space-between">
+      <div class="row"><button class="ghost" id="tkBack">← رجوع</button><b id="tkTitleView"></b></div>
+      <div class="row"><button class="ghost" id="tkCloseBtn">✅ إغلاق التذكرة</button><button class="ghost hidden" id="tkOpenBtn">↩ إعادة فتح</button></div>
+    </div>
+    <div class="scroll" id="tkBody"></div>
+    <form id="tkReplyForm">
+      <input id="tkReplyText" placeholder="اكتب ردك..." maxlength="500" autocomplete="off" required>
+      <button type="button" class="emo" data-t="tkReplyText" title="إيموجي">😀</button>
+      <button class="main">رد</button>
+    </form>
+  </div>
+</div>
+
+<!-- ======== الإدارة ======== -->
+<div class="pane hidden" id="stPane">
+  <div class="scroll">
+    <div class="box">
+      <h3 class="sec">🧑‍⚖️ إجراء على لاعب</h3>
+      <div class="row" style="margin-top:8px"><input id="stName" placeholder="اسم اللاعب" maxlength="16"></div>
+      <div class="row" style="margin-top:8px">
+        <select id="stDur" title="مدة الكتم / الحظر">
+          <option value="10">⏱ 10 دقائق</option>
+          <option value="60" selected>⏱ ساعة</option>
+          <option value="360">⏱ 6 ساعات</option>
+          <option value="1440">⏱ يوم</option>
+          <option value="4320">⏱ 3 أيام</option>
+          <option value="10080">⏱ أسبوع</option>
+          <option value="43200">⏱ شهر</option>
+          <option value="0">♾ دائم</option>
+        </select>
+        <input id="stReason" placeholder="السبب (اختياري)" maxlength="80">
+      </div>
+      <div class="notice" style="text-align:right;padding:4px 0 0">المدة تنطبق على الكتم والحظر.</div>
+      <div class="row" style="margin-top:8px">
+        <button class="ghost" id="btnMute">🔇 كتم</button>
+        <button class="ghost" id="btnUnmute">رفع الكتم</button>
+        <button class="ghost red adm" id="btnBan">🚫 حظر</button>
+        <button class="ghost adm" id="btnUnban">رفع الحظر</button>
+        <button class="ghost red" id="btnWipe">🧹 مسح كل رسائله ومنشوراته</button>
+      </div>
+    </div>
+
+    <div class="box"><h3 class="sec">🎫 التذاكر</h3><div id="tkStaffList"></div></div>
+    <div class="box"><h3 class="sec">🚩 البلاغات</h3><div id="repList"></div></div>
+    <div class="box"><h3 class="sec">🔇 المكتومون</h3><div id="muteList"></div></div>
+    <div class="box adm"><h3 class="sec">🚫 المحظورون</h3><div id="banList"></div></div>
+
+    <div class="box adm">
+      <h3 class="sec">📣 نشر إعلان في الموقع (يظهر في الصفحة الرئيسية)</h3>
+      <form id="annForm" class="plain">
+        <input id="annTitle" placeholder="عنوان الإعلان" maxlength="80" required>
+        <textarea id="annText" placeholder="نص الإعلان..." maxlength="1000" required></textarea>
+        <button class="main">نشر الإعلان</button>
+      </form>
+      <div id="annList" style="margin-top:10px"></div>
+    </div>
+
+    <div class="box adm">
+      <h3 class="sec">🎨 إعطاء رتبة لاعب (شكل مميز بالشات)</h3>
+      <form id="rankGiveForm" class="plain">
+        <input id="rankGiveName" placeholder="اسم اللاعب" maxlength="16" required>
+        <select id="rankGiveSel"></select>
+        <button class="main">إعطاء</button>
+      </form>
+    </div>
+
+    <div class="box own">
+      <h3 class="sec">✨ صناعة رتب مخصصة (للمالك فقط)</h3>
+      <form id="rankDefForm" class="plain">
+        <input id="rdLabel" placeholder="اسم الرتبة (مثال: VIP)" maxlength="16" required>
+        <input id="rdIcon" placeholder="إيموجي (اختياري)" maxlength="2" style="max-width:150px">
+        <input id="rdColor" type="color" value="#5cb85c" style="flex:none;width:60px;height:46px;padding:2px;background:var(--bg);border:1px solid var(--border);border-radius:10px">
+        <select id="rdFx">
+          <option value="none">عادي</option>
+          <option value="glow">✨ توهج</option>
+          <option value="shine">🌈 لمعان متحرك</option>
+        </select>
+        <button class="main">إنشاء الرتبة</button>
+      </form>
+      <div id="rankDefList" style="margin-top:10px"></div>
+    </div>
+
+    <div class="box own">
+      <h3 class="sec">🛡️ تعيين الإدارة (للمالك فقط)</h3>
+      <form id="roleForm" class="plain">
+        <input id="roleName" placeholder="اسم اللاعب" maxlength="16" required>
+        <select id="roleSel">
+          <option value="mod">🔰 مشرف (كتم + مسح)</option>
+          <option value="admin">🛡️ إدارة (كتم + حظر + إعلانات)</option>
+          <option value="none">إزالة الرتبة</option>
+        </select>
+        <button class="main">حفظ</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="emojiPanel" class="hidden"></div>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCD2_omUv2O9H3B0YEhlQ1KJbKzdBxrIx0",
+    authDomain: "wandsmp-98824.firebaseapp.com",
+    databaseURL: "https://wandsmp-98824-default-rtdb.firebaseio.com",
+    projectId: "wandsmp-98824",
+    appId: "1:375935441371:web:38ad3f4501f91d452a6ffe"
+  };
+
+  const BLOCKED = ["كلمة1", "كلمة2"];   // ضيف الكلمات الممنوعة هنا
+  const COOLDOWN_MS = 4000;
+  const FOREVER = 4102444800000;
+
+  const $ = id => document.getElementById(id);
+  const err = $("err");
+  function showErr(m, keep){ err.textContent = m; if(!keep) setTimeout(() => { if(err.textContent===m) err.textContent = ""; }, 4500); }
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth(), db = firebase.database();
+  const TS = firebase.database.ServerValue.TIMESTAMP;
+  const key = n => n.toLowerCase();
+  const myUid = () => auth.currentUser && auth.currentUser.uid;
+  const myName = () => (auth.currentUser && auth.currentUser.displayName) || "";
+
+  /* ---------- الحالة ---------- */
+  let listeners = [], attached = false, dmOn = false, blocked = {}, inbox = {};
+  let friends = {}, requests = {};
+  let groupsMine = {}, grInv = {}, myTk = {}, tkAll = {};
+  let pubUnread = 0; const gLast = {}, gListeners = {};
+  const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+  const seenGet2 = k => Number(lsGet("seen:" + k) || 0);
+  const seenSet2 = (k, v) => { if ((v || 0) > seenGet2(k)) lsSet("seen:" + k, String(v)); };
+  function setBadge(tid, n){
+    const t = $(tid); if (!t) return;
+    let b = t.querySelector(".nb");
+    if (!b) { b = document.createElement("span"); b.className = "nb"; t.appendChild(b); }
+    b.textContent = n > 9 ? "9+" : String(n); b.classList.toggle("hidden", !n);
+  }
+  function updateBadges(){
+    const me = myUid();
+    if (!me) { ["tabPub","tabFr","tabDm","tabGr","tabTk","tabSt"].forEach(t => setBadge(t, 0)); document.title = "الشات | WandSMP"; return; }
+    if (other && !$("dmPane").classList.contains("hidden") && inbox[other.uid]) seenSet2("dm:" + other.uid, inbox[other.uid].time || 0);
+    if (cg && !$("grPane").classList.contains("hidden") && gLast[cg.id]) seenSet2("g:" + cg.id, gLast[cg.id].time || 0);
+    const dm = Object.entries(inbox).filter(([u, v]) => v.from && v.from !== me && !blocked[u] && (v.time || 0) > seenGet2("dm:" + u)).length;
+    const gr = Object.keys(grInv).length + Object.entries(gLast).filter(([g, v]) => groupsMine[g] && v.uid !== me && (v.time || 0) > seenGet2("g:" + g)).length;
+    const fr = Object.keys(requests).length;
+    const seenTk = seenGet();
+    const tk = Object.entries(myTk).filter(([id, v]) => v.status !== "closed" && v.upd && v.upd > (seenTk[id] || 0)).length;
+    const st = isMod() ? Object.values(tkAll).filter(t => t.status !== "closed").length + Object.keys(repData).length : 0;
+    setBadge("tabPub", pubUnread); setBadge("tabFr", fr); setBadge("tabDm", dm); setBadge("tabGr", gr); setBadge("tabTk", tk); setBadge("tabSt", st);
+    const total = pubUnread + fr + dm + gr + tk + st;
+    document.title = (total ? "(" + total + ") " : "") + "الشات | WandSMP";
+    renderInbox(); renderFriends(); renderGroups();
+  }
+  function syncGroupListeners(){
+    for (const gid of Object.keys(groupsMine)) if (!gListeners[gid]) {
+      const r = db.ref("groupMsgs/" + gid).limitToLast(1);
+      const cb = snap => { const d = snap.val(); if (d) { gLast[gid] = { time: d.time, uid: d.uid }; updateBadges(); } };
+      r.on("child_added", cb, () => {}); gListeners[gid] = () => r.off("child_added", cb);
+    }
+    for (const gid of Object.keys(gListeners)) if (!groupsMine[gid]) { gListeners[gid](); delete gListeners[gid]; delete gLast[gid]; }
+  }
+  function clearGroupListeners(){ for (const g of Object.keys(gListeners)) { gListeners[g](); delete gListeners[g]; delete gLast[g]; } }
+  let rolesMap = {}, myBan = null, myMute = null;
+  let rankDefs = {}, rankOf = {};
+  let staffListeners = [], staffAttached = false;
+  let repData = {}, banData = {}, muteData = {}, annData = {};
+  const pubKeys = [], pubData = {}, postKeys = [], postData = {};
+
+  const myRole = () => rolesMap[myUid()] || null;
+  const isMod = () => ["mod", "admin", "owner"].includes(myRole());
+  const isAdmin = () => ["admin", "owner"].includes(myRole());
+  const isOwner = () => myRole() === "owner";
+  const ROLE_LABEL = { owner: "👑 المالك", admin: "🛡️ إدارة", mod: "🔰 مشرف" };
+
+  const HEX = /^#[0-9a-fA-F]{6}$/;
+  function rankDef(uid){ const d = rankDefs[rankOf[uid]]; return d && HEX.test(d.color) ? d : null; }
+  function badgeEl(uid){ const s = document.createElement("span"); s.className = "bw"; s.dataset.uid = uid || ""; return s; }
+  function applyBadges(){
+    document.querySelectorAll(".bw[data-uid]").forEach(w => {
+      const uid = w.dataset.uid; w.textContent = "";
+      const r = rolesMap[uid];
+      if (r) { const b = document.createElement("span"); b.className = "badge b-" + r; b.textContent = ROLE_LABEL[r]; w.appendChild(b); }
+      const d = rankDef(uid);
+      if (d) {
+        const b = document.createElement("span"); b.className = "badge";
+        b.style.color = d.color; b.style.background = d.color + "26"; b.style.border = "1px solid " + d.color + "66";
+        b.textContent = (d.icon ? d.icon + " " : "") + d.label; w.appendChild(b);
+      }
+    });
+    document.querySelectorAll(".nm[data-uid]").forEach(n => {
+      const d = rankDef(n.dataset.uid);
+      n.classList.remove("fx-glow", "fx-shine");
+      if (d) {
+        n.style.color = d.color; n.style.setProperty("--c", d.color);
+        if (d.fx === "glow") n.classList.add("fx-glow");
+        if (d.fx === "shine") n.classList.add("fx-shine");
+      } else { n.style.color = ""; n.style.removeProperty("--c"); }
+    });
+  }
+
+  const banActive = b => !!b && (!b.until || b.until > Date.now());
+  const untilText = u => u >= FOREVER ? "بشكل دائم" : "لين " + new Date(u).toLocaleString("ar-EG");
+  function blockedMsg(){
+    if (banActive(myBan)) return "🚫 أنت محظور " + (myBan.until ? untilText(myBan.until) : "") + (myBan.reason ? " — السبب: " + myBan.reason : "");
+    if (myMute && myMute.until > Date.now())
+      return "🔇 أنت مكتوم " + untilText(myMute.until) + (myMute.reason ? " — السبب: " + myMute.reason : "");
+    return "";
+  }
+  function updateStatus(){ const m = blockedMsg(); $("status").textContent = m; $("status").classList.toggle("hidden", !m); }
+  setInterval(updateStatus, 30000);
+
+  const timeStr = t => new Date(t).toLocaleTimeString("ar-EG", {hour:"2-digit", minute:"2-digit"});
+  function isBad(s){
+    const t = s.toLowerCase();
+    if (/(https?:\/\/|www\.|\.com|\.net|\.gg|discord\.)/i.test(t)) return "الروابط ممنوعة";
+    if (BLOCKED.some(w => w && t.includes(w))) return "فيه كلمة ممنوعة";
+    return null;
+  }
+
+  function report(where, uid, name, text){
+    if (!myUid()) return showErr("سجّل دخول عشان تبلغ");
+    if (!confirm("تبلغ عن رسالة " + name + "؟")) return;
+    db.ref("reports").push({ by: myUid(), against: uid || "", name, text, where, time: TS })
+      .then(() => showErr("وصل البلاغ للإدارة، شكراً"))
+      .catch(() => showErr("ما انرسل البلاغ"));
+  }
+
+  function removeItem(path, k){
+    if (!confirm("تحذف هذا؟")) return;
+    db.ref(path + "/" + k).remove().catch(() => showErr("ما انحذف (ما عندك صلاحية)"));
+  }
+
+  function actBtn(text, cls, title, fn){
+    const b = document.createElement("button"); b.textContent = text; if (cls) b.className = cls; b.title = title; b.onclick = fn; return b;
+  }
+
+  function makeMsg(d, where, mine, k){
+    const box = document.createElement("div"); box.className = "msg" + (mine ? " mine" : "");
+    const acts = document.createElement("span"); acts.className = "acts";
+    const uid = d.uid || d.from;
+    if (!mine) {
+      acts.append(actBtn("⚑", "", "إبلاغ", () => report(where, uid, d.name, d.text)));
+      if (where === "public" && uid) acts.append(actBtn("➕", "fr", "إضافة صديق", () => sendRequest(uid, d.name)));
+    }
+    if (where === "public" && isMod()) {
+      acts.append(actBtn("🗑", "", "حذف الرسالة", () => removeItem("messages", k)));
+      if (uid && uid !== myUid()) acts.append(actBtn("🛡", "", "إجراء إداري", () => modFor(d.name)));
+    }
+    const n = document.createElement("span"); n.className = "n nm"; n.dataset.uid = uid || ""; n.textContent = d.name;
+    const t = document.createElement("span"); t.className = "t"; t.textContent = timeStr(d.time);
+    const b = document.createElement("div"); b.className = "b";
+    if (d.audio) {
+      const pb = document.createElement("button"); pb.className = "ghost"; pb.textContent = "▶ رسالة صوتية";
+      pb.onclick = () => playAudio(k, pb);
+      b.appendChild(pb);
+    } else b.textContent = d.text;
+    box.append(acts, n, badgeEl(uid), t, b);
+    return box;
+  }
+
+  /* ---------- التبويبات ---------- */
+  function tab(name){
+    const map = { pub: ["tabPub", "pubPane"], post: ["tabPost", "postPane"], fr: ["tabFr", "frPane"], dm: ["tabDm", "dmPane"], gr: ["tabGr", "grPane"], tk: ["tabTk", "tkPane"], st: ["tabSt", "stPane"] };
+    for (const k in map) {
+      $(map[k][0]).classList.toggle("on", k === name);
+      $(map[k][1]).classList.toggle("hidden", k !== name);
+    }
+    if (name === "pub") pubUnread = 0;
+    updateBadges();
+  }
+  $("tabPub").onclick = () => tab("pub");
+  $("tabPost").onclick = () => tab("post");
+  $("tabFr").onclick = () => tab("fr");
+  $("tabDm").onclick = () => tab("dm");
+  $("tabGr").onclick = () => tab("gr");
+  $("tabTk").onclick = () => tab("tk");
+  $("tabSt").onclick = () => tab("st");
+
+  /* ---------- الحسابات: تتم من الصفحة الرئيسية ---------- */
+
+  function listen(r, cb){ r.on("value", cb, () => {}); listeners.push(() => r.off("value", cb)); }
+  function detach(){
+    listeners.forEach(f => f()); listeners = []; attached = false;
+    dmOn = false; blocked = {}; inbox = {}; friends = {}; requests = {}; groupsMine = {}; grInv = {}; myTk = {}; tkAll = {}; clearGroupListeners(); updateBadges(); closeGroup(); renderGroups(); closeTicket(); renderTickets(); myBan = null; myMute = null;
+    updateStatus();
+  }
+
+  function afterAuth(){
+    const u = auth.currentUser;
+    if (!u || !u.displayName || attached) return;
+    attached = true;
+    db.ref("usernames/" + key(u.displayName)).set(u.uid).catch(() => {});
+    db.ref("profiles/" + u.uid).set({ name: u.displayName }).catch(() => {});
+    listen(db.ref("settings/" + u.uid + "/dm"), s => { dmOn = s.val() === true; $("dmToggle").checked = dmOn; dmUi(); });
+    listen(db.ref("settings/" + u.uid + "/openDm"), s => { $("openToggle").checked = s.val() === true; });
+    listen(db.ref("blocks/" + u.uid), s => { blocked = s.val() || {}; renderInbox(); refreshBlockBtn(); });
+    listen(db.ref("inbox/" + u.uid), s => { inbox = s.val() || {}; renderInbox(); updateBadges(); });
+    listen(db.ref("friends/" + u.uid), s => { friends = s.val() || {}; renderFriends(); });
+    listen(db.ref("requests/" + u.uid), s => { requests = s.val() || {}; renderFriends(); updateBadges(); });
+    listen(db.ref("bans/" + u.uid), s => {
+      myBan = s.val(); if (myBan && !banActive(myBan)) myBan = null; updateStatus();
+      if (myBan) {
+        try { sessionStorage.setItem("banMsg", "🚫 حسابك محظور من الموقع" + (myBan.reason ? " — السبب: " + myBan.reason : "")); } catch (e) {}
+        auth.signOut();
+      }
+    });
+    listen(db.ref("mutes/" + u.uid), s => { myMute = s.val(); updateStatus(); });
+    listen(db.ref("myTickets/" + u.uid), s => { myTk = s.val() || {}; renderTickets(); updateBadges(); });
+    if (!lsGet("seenInit")) setTimeout(() => {
+      for (const [x, v] of Object.entries(inbox)) seenSet2("dm:" + x, v.time || 0);
+      for (const [g, v] of Object.entries(gLast)) seenSet2("g:" + g, v.time || 0);
+      for (const [id, v] of Object.entries(myTk)) if (v.upd) seenSet(id, v.upd);
+      lsSet("seenInit", "1"); updateBadges();
+    }, 5000);
+    listen(db.ref("myGroups/" + u.uid), s => { groupsMine = s.val() || {}; syncGroupListeners(); renderGroups(); updateBadges(); });
+    listen(db.ref("groupInvites/" + u.uid), s => { grInv = s.val() || {}; renderGroups(); updateBadges(); });
+    listen(db.ref("calls/" + u.uid), s => {
+      const v = s.val() || {};
+      const ent = Object.entries(v).find(([, c]) => Date.now() - (c.time || 0) < RING_MS);
+      if (ent && callState === "idle") {
+        incoming = { from: ent[0], name: ent[1].name, peer: ent[1].peer }; callState = "ringing"; callUi();
+        clearTimeout(ringTimer);
+        const left = RING_MS - (Date.now() - (ent[1].time || Date.now()));
+        ringTimer = setTimeout(() => { if (callState === "ringing") { declineCall(); showErr("فاتتك مكالمة من " + ent[1].name); } }, Math.max(left, 1000));
+      }
+      else if (!ent && callState === "ringing") { incoming = null; callState = "idle"; callUi(); }
+    });
+  }
+
+  auth.onAuthStateChanged(user => {
+    const on = !!user;
+    document.body.classList.toggle("locked", !on);
+    $("gateLoading").classList.add("hidden"); $("gateLogin").classList.toggle("hidden", on);
+    try { $("gateBan").textContent = !on ? (sessionStorage.getItem("banMsg") || "") : ""; } catch (e) {}
+    $("chatForm").classList.toggle("hidden", !on);
+    $("postForm").classList.toggle("hidden", !on);
+    $("postLogged").classList.toggle("hidden", on);
+    $("who").classList.toggle("hidden", !on);
+    $("whoName").textContent = on ? (user.displayName || "") : "";
+    $("whoBadge").dataset.uid = on ? user.uid : ""; applyBadges();
+    $("dmLogged").classList.toggle("hidden", on);
+    $("dmArea").classList.toggle("hidden", !on);
+    $("frLogged").classList.toggle("hidden", on);
+    $("frArea").classList.toggle("hidden", !on);
+    if (on) afterAuth(); else { cleanupCall(); detach(); closeConvo(); }
+    updateStaffUi();
+  });
+
+  /* ---------- الرتب ---------- */
+  db.ref("roles").on("value", s => { rolesMap = s.val() || {}; applyBadges(); updateStaffUi(); }, () => {});
+  db.ref("rankDefs").on("value", s => { rankDefs = s.val() || {}; applyBadges(); renderRankDefs(); }, () => {});
+  db.ref("rankOf").on("value", s => { rankOf = s.val() || {}; applyBadges(); }, () => {});
+
+  function updateStaffUi(){
+    const st = isMod();
+    $("tabSt").classList.toggle("hidden", !st);
+    document.querySelectorAll("#stPane .adm").forEach(e => e.classList.toggle("hidden", !isAdmin()));
+    document.querySelectorAll("#stPane .own").forEach(e => e.classList.toggle("hidden", !isOwner()));
+    if (st && !staffAttached) attachStaff(); else if (!st && staffAttached) detachStaff();
+    if (!st && !$("stPane").classList.contains("hidden")) tab("pub");
+    renderPublic(); renderPosts(); applyBadges();
+  }
+
+  /* ---------- الشات العام ---------- */
+  let last = 0;
+  $("chatForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const user = auth.currentUser, body = $("text").value.trim();
+    if (!user || !body) return;
+    const bm = blockedMsg(); if (bm) return showErr(bm);
+    const now = Date.now();
+    if (now - last < COOLDOWN_MS) return showErr("استنى شوي قبل الرسالة الجاية");
+    const bad = isBad(body); if (bad) return showErr(bad);
+    last = now;
+    db.ref("messages").push({ name: user.displayName || "لاعب", uid: user.uid, text: body, time: TS })
+      .catch(() => showErr("ما انرسلت الرسالة (يمكن أنت مكتوم أو محظور)", true));
+    $("text").value = "";
+  });
+
+  function renderPublic(){
+    const box = $("msgs");
+    box.querySelectorAll(".msg").forEach(e => e.remove());
+    pubKeys.forEach(k => box.appendChild(makeMsg(pubData[k], "public", pubData[k].uid === myUid(), k)));
+    applyBadges(); box.scrollTop = box.scrollHeight;
+  }
+  db.ref("messages").limitToLast(100).on("child_added", snap => {
+    pubKeys.push(snap.key); pubData[snap.key] = snap.val();
+    const box = $("msgs");
+    box.appendChild(makeMsg(snap.val(), "public", snap.val().uid === myUid(), snap.key));
+    applyBadges(); box.scrollTop = box.scrollHeight;
+  }, ex => showErr("ما قدرت أقرأ الرسائل: تأكد من نشر Rules (" + ex.code + ")", true));
+  db.ref("messages").limitToLast(100).on("child_removed", snap => {
+    delete pubData[snap.key]; const i = pubKeys.indexOf(snap.key); if (i > -1) pubKeys.splice(i, 1);
+    renderPublic();
+  });
+
+  /* ---------- المنشورات ---------- */
+  const TYPE = { sell: ["🟢 بيع", "t-sell"], buy: ["🔵 شراء", "t-buy"], other: ["⚪ إعلان", "t-other"] };
+
+  $("postForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const user = auth.currentUser, body = $("postText").value.trim();
+    if (!user || body.length < 3) return showErr("المنشور قصير");
+    const bm = blockedMsg(); if (bm) return showErr(bm);
+    const bad = isBad(body); if (bad) return showErr(bad);
+    const id = db.ref("posts").push().key;
+    db.ref().update({
+      ["posts/" + id]: { name: user.displayName || "لاعب", uid: user.uid, text: body, type: $("postType").value, time: TS },
+      ["lastPost/" + user.uid]: TS
+    }).then(() => { $("postText").value = ""; showErr("اننشر منشورك ✓"); })
+      .catch(() => showErr("ما اننشر: تقدر تنشر منشور كل دقيقة، ويمكن أنت مكتوم أو محظور", true));
+  });
+
+  function makePost(d, k){
+    const box = document.createElement("div"); box.className = "post";
+    const acts = document.createElement("span"); acts.className = "acts";
+    if (d.uid === myUid() || isMod()) acts.append(actBtn("🗑", "", "حذف المنشور", () => removeItem("posts", k)));
+    if (d.uid !== myUid()) acts.append(actBtn("⚑", "", "إبلاغ", () => report("post", d.uid, d.name, d.text)));
+    if (isMod() && d.uid !== myUid()) acts.append(actBtn("🛡", "", "إجراء إداري", () => modFor(d.name)));
+    const chip = document.createElement("span"); const ty = TYPE[d.type] || TYPE.other;
+    chip.className = "chip " + ty[1]; chip.textContent = ty[0];
+    const n = document.createElement("span"); n.className = "n nm"; n.dataset.uid = d.uid || ""; n.textContent = d.name;
+    const t = document.createElement("span"); t.className = "t"; t.textContent = new Date(d.time).toLocaleString("ar-EG", {month:"short", day:"numeric", hour:"2-digit", minute:"2-digit"});
+    const b = document.createElement("div"); b.className = "b"; b.textContent = d.text;
+    box.append(acts, chip, n, badgeEl(d.uid), t, b);
+    if (d.uid !== myUid()) {
+      const foot = document.createElement("div"); foot.className = "foot";
+      const c = document.createElement("button"); c.className = "ghost"; c.textContent = "💬 تواصل";
+      c.onclick = () => contactUser(d.uid, d.name);
+      foot.append(c); box.append(foot);
+    }
+    return box;
+  }
+  function renderPosts(){
+    const list = $("postList"); list.innerHTML = "";
+    if (!postKeys.length) { list.innerHTML = '<div class="notice">ما فيه منشورات للحين. كن أول واحد ينشر!</div>'; return; }
+    [...postKeys].reverse().forEach(k => list.appendChild(makePost(postData[k], k)));
+    applyBadges();
+  }
+  db.ref("posts").limitToLast(50).on("child_added", snap => {
+    postKeys.push(snap.key); postData[snap.key] = snap.val(); renderPosts();
+  }, () => {});
+  db.ref("posts").limitToLast(50).on("child_removed", snap => {
+    delete postData[snap.key]; const i = postKeys.indexOf(snap.key); if (i > -1) postKeys.splice(i, 1); renderPosts();
+  });
+
+  async function contactUser(uid, name){
+    if (!myUid()) { tab("pub"); return showErr("سجّل دخول أول"); }
+    if (friends[uid]) return messageFriend(uid, name);
+    try {
+      const s = await db.ref("settings/" + uid + "/openDm").once("value");
+      if (s.val() === true) return messageFriend(uid, name);
+      sendRequest(uid, name);
+    } catch (ex) { showErr("خطأ: " + ex.code); }
+  }
+
+  /* ---------- الأصدقاء ---------- */
+  function sendRequest(uid, name){
+    if (!myUid()) return showErr("سجّل دخول أول");
+    if (uid === myUid()) return showErr("هذا حسابك أنت 😄");
+    if (friends[uid]) return showErr(name + " صديقك من قبل");
+    db.ref("requests/" + uid + "/" + myUid()).set({ name: myName(), time: TS })
+      .then(() => showErr("انرسل طلب الصداقة لـ " + name + " ✓ (لما يقبل تقدر تراسله)"))
+      .catch(() => showErr("ما انرسل الطلب (يمكن أرسلت له من قبل، أو هو حاظرك)"));
+  }
+
+  $("addForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const name = $("addName").value.trim();
+    if (!name) return;
+    try {
+      const s = await db.ref("usernames/" + key(name)).once("value");
+      const uid = s.val();
+      if (!uid) return showErr("ما لقيت لاعب بهذا الاسم");
+      const pr = await db.ref("profiles/" + uid).once("value");
+      if (!pr.exists()) return showErr("هذا الحساب مو موجود (أو ما دخل من بعد التحديث). اطلب منه يسجل دخول مرة.");
+      sendRequest(uid, pr.val().name || name);
+      $("addForm").reset();
+    } catch (ex) { showErr("خطأ: " + ex.code); }
+  });
+
+  function accept(uid, name){
+    const me = myUid(), meName = myName();
+    db.ref("friends/" + me + "/" + uid).set({ name, time: TS })
+      .then(() => db.ref("friends/" + uid + "/" + me).set({ name: meName, time: TS }))
+      .then(() => db.ref("requests/" + me + "/" + uid).remove())
+      .catch(() => showErr("ما انقبل الطلب، حاول مرة ثانية"));
+  }
+  function decline(uid){ db.ref("requests/" + myUid() + "/" + uid).remove(); }
+  function unfriend(uid, name){
+    if (!confirm("تحذف " + name + " من أصدقائك؟")) return;
+    db.ref("friends/" + myUid() + "/" + uid).remove();
+    db.ref("friends/" + uid + "/" + myUid()).remove().catch(() => {});
+  }
+
+  async function messageFriend(uid, name){
+    if (!dmOn) { tab("dm"); return showErr("فعّل الرسائل الخاصة أول من هنا"); }
+    try {
+      const st = await db.ref("settings/" + uid + "/dm").once("value");
+      if (st.val() !== true) return showErr(name + " مقفل الرسائل الخاصة");
+      tab("dm"); openConvo(uid, name);
+    } catch (ex) { showErr("خطأ: " + ex.code); }
+  }
+
+  function rowBtn(text, cls, fn){
+    const b = document.createElement("button"); b.className = "ghost " + cls; b.textContent = text; b.onclick = fn; return b;
+  }
+  function dotEl(txt){ const d = document.createElement("span"); d.className = "newpill"; d.textContent = txt || "جديد"; return d; }
+  const dmUnread = u => { const v = inbox[u]; return !!(v && v.from && v.from !== myUid() && !blocked[u] && (v.time || 0) > seenGet2("dm:" + u)); };
+  const grUnread = g => { const v = gLast[g]; return !!(v && v.uid !== myUid() && (v.time || 0) > seenGet2("g:" + g)); };
+  function makeRow(name, buttons, dot){
+    const row = document.createElement("div"); row.className = "frow";
+    const n = document.createElement("b"); n.className = "tx"; n.textContent = name; if (dot) { n.appendChild(dotEl(typeof dot === "string" ? dot : "جديد")); row.classList.add("hot"); }
+    const act = document.createElement("div"); act.className = "row"; act.append(...buttons);
+    row.append(n, act); return row;
+  }
+  function renderFriends(){
+    const rl = $("reqList"), fl = $("friendList"); rl.innerHTML = ""; fl.innerHTML = "";
+    const reqs = Object.entries(requests);
+    if (!reqs.length) rl.innerHTML = '<div class="notice">ما فيه طلبات جديدة.</div>';
+    for (const [uid, v] of reqs) rl.appendChild(makeRow(v.name, [rowBtn("قبول", "", () => accept(uid, v.name)), rowBtn("رفض", "red", () => decline(uid))], "طلب جديد"));
+    const fr = Object.entries(friends).sort((a, b) => dmUnread(b[0]) - dmUnread(a[0]));
+    if (!fr.length) fl.innerHTML = '<div class="notice">ما عندك أصدقاء للحين. أضف أحد من فوق، أو بزر ➕ جنب رسائل الشات العام.</div>';
+    for (const [uid, v] of fr) fl.appendChild(makeRow(v.name, [rowBtn("📞 اتصل", "", () => startCall(uid, v.name)), rowBtn("💬 رسالة", "", () => messageFriend(uid, v.name)), rowBtn("حذف", "red", () => unfriend(uid, v.name))], dmUnread(uid) ? "رسالة جديدة" : false));
+  }
+
+  /* ---------- الرسائل الخاصة ---------- */
+  function dmUi(){
+    $("dmOn").classList.toggle("hidden", !dmOn);
+    $("dmOffMsg").classList.toggle("hidden", dmOn);
+  }
+  $("dmToggle").onchange = e => {
+    if (!myUid()) return;
+    db.ref("settings/" + myUid() + "/dm").set(e.target.checked).catch(() => showErr("ما انحفظ الإعداد"));
+  };
+  $("openToggle").onchange = e => {
+    if (!myUid()) return;
+    if (e.target.checked && !confirm("متأكد؟ أي أحد بيقدر يراسلك. الأفضل تخليها مطفية.")) { e.target.checked = false; return; }
+    db.ref("settings/" + myUid() + "/openDm").set(e.target.checked).catch(() => showErr("ما انحفظ الإعداد"));
+  };
+
+  function renderInbox(){
+    const list = $("inboxList"); list.innerHTML = "";
+    const items = Object.entries(inbox).sort((a, b) => (dmUnread(b[0]) - dmUnread(a[0])) || (b[1].time || 0) - (a[1].time || 0));
+    if (!items.length) { list.innerHTML = '<div class="notice">ما عندك محادثات للحين.</div>'; return; }
+    for (const [uid, v] of items) {
+      const b = document.createElement("button"); b.className = "conv";
+      const n = document.createElement("span"); n.textContent = v.name + (blocked[uid] ? " (محظور)" : "");
+      if (dmUnread(uid)) { n.appendChild(dotEl("رسالة جديدة")); n.style.fontWeight = "700"; b.classList.add("hot"); }
+      const t = document.createElement("small"); t.textContent = v.time ? timeStr(v.time) : "";
+      b.append(n, t); b.onclick = () => openConvo(uid, v.name);
+      list.appendChild(b);
+    }
+  }
+
+  let other = null, convoRef = null, convoCb = null, lastDm = 0;
+  const pairId = (a, b) => [a, b].sort().join("_");
+
+  function refreshBlockBtn(){
+    if (!other) return;
+    $("blockBtn").textContent = blocked[other.uid] ? "إلغاء الحظر" : "حظر";
+  }
+
+  function openConvo(uid, name){
+    closeConvo();
+    other = { uid, name };
+    $("convoName").textContent = name;
+    $("dmMsgs").innerHTML = "";
+    $("convo").classList.remove("hidden");
+    refreshBlockBtn();
+    curPair = pairId(myUid(), uid);
+    convoRef = db.ref("dms/" + curPair).limitToLast(100);
+    convoCb = convoRef.on("child_added", snap => {
+      const d = snap.val();
+      if (d.from !== myUid() && blocked[d.from]) return;
+      const box = $("dmMsgs");
+      box.appendChild(makeMsg(d, "dm", d.from === myUid(), snap.key));
+      applyBadges(); box.scrollTop = box.scrollHeight;
+    }, ex => showErr("ما قدرت أقرأ المحادثة: " + ex.code, true));
+  }
+  function closeConvo(){
+    if (convoRef && convoCb) convoRef.off("child_added", convoCb);
+    if (rec) stopRec(true);
+    convoRef = convoCb = other = null;
+    $("convo").classList.add("hidden");
+  }
+  $("back").onclick = closeConvo;
+
+  $("blockBtn").onclick = () => {
+    if (!other) return;
+    const r = db.ref("blocks/" + myUid() + "/" + other.uid);
+    if (blocked[other.uid]) r.remove();
+    else if (confirm("تحظر " + other.name + "؟ ما راح تشوف رسائله ولا يقدر يراسلك.")) r.set(true);
+  };
+
+  $("dmForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const body = $("dmText").value.trim();
+    if (!other || !body) return;
+    const bm = blockedMsg(); if (bm) return showErr(bm);
+    const now = Date.now();
+    if (now - lastDm < COOLDOWN_MS) return showErr("استنى شوي قبل الرسالة الجاية");
+    const bad = isBad(body); if (bad) return showErr(bad);
+    if (blocked[other.uid]) return showErr("أنت حاظر هذا اللاعب");
+    lastDm = now;
+    const me = myUid(), meName = myName(), o = other;
+    db.ref("dms/" + pairId(me, o.uid)).push({ from: me, to: o.uid, name: meName, text: body, time: TS })
+      .then(() => {
+        db.ref("inbox/" + o.uid + "/" + me).set({ name: meName, time: TS, from: me });
+        db.ref("inbox/" + me + "/" + o.uid).set({ name: o.name, time: TS, from: me });
+      })
+      .catch(() => showErr("ما انرسلت: تأكد إن الرسائل الخاصة مفعّلة عندك وعنده وإنه ما حاظرك", true));
+    $("dmText").value = "";
+  });
+
+  /* ---------- لوحة الإدارة ---------- */
+  function attachStaff(){
+    staffAttached = true;
+    const on = (path, cb) => { const r = db.ref(path); r.on("value", cb, () => {}); staffListeners.push(() => r.off("value", cb)); };
+    { const tr = db.ref("tickets").limitToLast(100); const cb = s => { tkAll = s.val() || {}; renderTkStaff(); updateBadges(); };
+      tr.on("value", cb, () => {}); staffListeners.push(() => tr.off("value", cb)); }
+    on("reports", s => { repData = s.val() || {}; renderReports(); updateBadges(); });
+    on("mutes", s => { muteData = s.val() || {}; renderMutes(); });
+    on("bans", s => { banData = s.val() || {}; renderBans(); });
+    on("announcements", s => { annData = s.val() || {}; renderAnn(); });
+  }
+  function detachStaff(){
+    staffListeners.forEach(f => f()); staffListeners = []; staffAttached = false;
+    repData = banData = muteData = annData = {};
+  }
+
+  function modFor(name){ tab("st"); $("stName").value = name; showErr("اختر الإجراء من لوحة الإدارة"); }
+
+  function targetOk(uid){
+    if (uid === myUid()) { showErr("هذا أنت 😄"); return false; }
+    if (rolesMap[uid] && !isOwner()) { showErr("ما تقدر تتصرف مع أحد من الإدارة"); return false; }
+    return true;
+  }
+  async function uidOf(name){
+    const s = await db.ref("usernames/" + key(name)).once("value");
+    return s.val();
+  }
+
+  function durInfo(){
+    const mins = Number($("stDur").value) || 0, reason = $("stReason").value.trim();
+    return { until: mins ? Date.now() + mins * 60000 : FOREVER, reason, label: mins ? $("stDur").selectedOptions[0].textContent.replace("⏱ ", "") : "دائم" };
+  }
+  function muteUser(uid, name){
+    if (!targetOk(uid)) return;
+    const d = durInfo();
+    db.ref("mutes/" + uid).set({ name, until: d.until, reason: d.reason, by: myUid(), byName: myName(), time: TS })
+      .then(() => showErr("انكتم " + name + " (" + d.label + ") ✓"))
+      .catch(() => showErr("ما انكتم (ما عندك صلاحية)"));
+  }
+  function banUser(uid, name){
+    if (!isAdmin()) return showErr("الحظر للإدارة بس");
+    if (!targetOk(uid)) return;
+    const d = durInfo();
+    db.ref("bans/" + uid).set({ name, until: d.until, by: myUid(), byName: myName(), reason: d.reason, time: TS })
+      .then(() => showErr("انحظر " + name + " (" + d.label + ") ✓"))
+      .catch(() => showErr("ما انحظر (ما عندك صلاحية)"));
+  }
+  async function wipeUser(uid, name){
+    if (!targetOk(uid)) return;
+    try {
+      const up = {}; let n = 0;
+      for (const path of ["messages", "posts"]) {
+        const s = await db.ref(path).orderByChild("uid").equalTo(uid).once("value");
+        s.forEach(c => { up[path + "/" + c.key] = null; n++; });
+      }
+      if (!n) return showErr("ما فيه رسائل أو منشورات لـ " + name);
+      if (!confirm("تمسح " + n + " رسالة/منشور من " + name + "؟")) return;
+      await db.ref().update(up);
+      showErr("انمسح " + n + " ✓");
+    } catch (ex) { showErr("ما انمسحت: " + ex.code); }
+  }
+
+  async function actOnName(fn){
+    const name = $("stName").value.trim();
+    if (!name) return showErr("اكتب اسم اللاعب");
+    try {
+      const uid = await uidOf(name);
+      if (!uid) return showErr("ما لقيت لاعب بهذا الاسم");
+      fn(uid, name);
+    } catch (ex) { showErr("خطأ: " + ex.code); }
+  }
+  $("btnMute").onclick = () => actOnName((u, n) => muteUser(u, n));
+  $("btnUnmute").onclick = () => actOnName(u => db.ref("mutes/" + u).remove().then(() => showErr("انرفع الكتم ✓")).catch(() => showErr("ما انرفع")));
+  $("btnBan").onclick = () => actOnName((u, n) => banUser(u, n));
+  $("btnUnban").onclick = () => actOnName(u => db.ref("bans/" + u).remove().then(() => showErr("انرفع الحظر ✓")).catch(() => showErr("ما انرفع")));
+  $("btnWipe").onclick = () => actOnName((u, n) => wipeUser(u, n));
+
+  function renderReports(){
+    const box = $("repList"); box.innerHTML = "";
+    const items = Object.entries(repData).sort((a, b) => (b[1].time || 0) - (a[1].time || 0));
+    if (!items.length) { box.innerHTML = '<div class="notice">ما فيه بلاغات.</div>'; return; }
+    for (const [k, r] of items) {
+      const row = document.createElement("div"); row.className = "frow";
+      const tx = document.createElement("div"); tx.className = "tx";
+      tx.textContent = "[" + (r.where === "dm" ? "خاص" : r.where === "post" ? "منشور" : "عام") + "] " + r.name + ": " + r.text;
+      const act = document.createElement("div"); act.className = "row";
+      if (r.against) {
+        act.append(rowBtn("🔇 كتم", "", () => muteUser(r.against, r.name)));
+        if (isAdmin()) act.append(rowBtn("🚫 حظر", "red", () => banUser(r.against, r.name)));
+        act.append(rowBtn("🧹 مسح", "red", () => wipeUser(r.against, r.name)));
+      }
+      act.append(rowBtn("✔ إغلاق", "", () => db.ref("reports/" + k).remove()));
+      row.append(tx, act); box.appendChild(row);
+    }
+  }
+  function renderMutes(){
+    const box = $("muteList"); box.innerHTML = "";
+    const items = Object.entries(muteData).filter(([, m]) => m.until > Date.now());
+    if (!items.length) { box.innerHTML = '<div class="notice">ما فيه مكتومين.</div>'; return; }
+    for (const [uid, m] of items) {
+      const when = m.until >= FOREVER ? "دائم" : "لين " + new Date(m.until).toLocaleString("ar-EG");
+      box.appendChild(makeRow(m.name + " — " + when + (m.reason ? " — " + m.reason : ""), [rowBtn("رفع الكتم", "", () => db.ref("mutes/" + uid).remove())]));
+    }
+  }
+  function renderBans(){
+    const box = $("banList"); box.innerHTML = "";
+    const items = Object.entries(banData).filter(([, b]) => banActive(b));
+    if (!items.length) { box.innerHTML = '<div class="notice">ما فيه محظورين.</div>'; return; }
+    for (const [uid, b] of items)
+      box.appendChild(makeRow(b.name + (b.until ? " — " + untilText(b.until) : "") + (b.reason ? " — " + b.reason : ""), [rowBtn("رفع الحظر", "", () => db.ref("bans/" + uid).remove())]));
+  }
+
+  $("annForm").addEventListener("submit", e => {
+    e.preventDefault();
+    if (!isAdmin()) return showErr("الإعلانات للإدارة بس (رتبتك الحين: " + (myRole() || "لاعب عادي") + ")", true);
+    const title = $("annTitle").value.trim(), text = $("annText").value.trim();
+    if (!title || !text) return showErr("اكتب العنوان والنص");
+    db.ref("announcements").push({ title, text, time: TS, by: myUid(), byName: myName() })
+      .then(() => { $("annForm").reset(); showErr("اننشر الإعلان في الموقع ✓"); })
+      .catch(ex => showErr("ما اننشر الإعلان: " + (ex && ex.code || ex) + " — تأكد إنك نشرت القواعد الجديدة", true));
+  });
+  function renderAnn(){
+    const box = $("annList"); box.innerHTML = "";
+    Object.entries(annData).sort((a, b) => (b[1].time || 0) - (a[1].time || 0)).forEach(([k, a]) => {
+      box.appendChild(makeRow(a.title, [rowBtn("🗑 حذف", "red", () => removeItem("announcements", k))]));
+    });
+  }
+
+  $("roleForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    if (!isOwner()) return showErr("الرتب للمالك بس");
+    const name = $("roleName").value.trim(), role = $("roleSel").value;
+    try {
+      const uid = await uidOf(name);
+      if (!uid) return showErr("ما لقيت لاعب بهذا الاسم");
+      if (uid === myUid()) return showErr("ما تقدر تغيّر رتبتك");
+      if (role === "none") await db.ref("roles/" + uid).remove(); else await db.ref("roles/" + uid).set(role);
+      $("roleForm").reset(); showErr("انحفظت الرتبة ✓");
+    } catch (ex) { showErr("ما انحفظت: " + ex.code); }
+  });
+
+  /* ---------- الرتب المخصصة (الشكل) ---------- */
+  function previewName(def, text){
+    const s = document.createElement("span"); s.className = "n nm"; s.textContent = text;
+    s.style.color = def.color; s.style.setProperty("--c", def.color);
+    if (def.fx === "glow") s.classList.add("fx-glow");
+    if (def.fx === "shine") s.classList.add("fx-shine");
+    return s;
+  }
+  function renderRankDefs(){
+    const sel = $("rankGiveSel"); sel.innerHTML = "";
+    const none = document.createElement("option"); none.value = "none"; none.textContent = "— إزالة الرتبة —"; sel.appendChild(none);
+    const ents = Object.entries(rankDefs).filter(([, d]) => HEX.test(d.color));
+    ents.forEach(([id, d]) => {
+      const o = document.createElement("option"); o.value = id; o.textContent = (d.icon ? d.icon + " " : "") + d.label; sel.appendChild(o);
+    });
+    const box = $("rankDefList"); box.innerHTML = "";
+    if (!ents.length) { box.innerHTML = '<div class="notice">ما سويت رتب للحين.</div>'; return; }
+    ents.forEach(([id, d]) => {
+      const row = document.createElement("div"); row.className = "frow";
+      const tx = document.createElement("div"); tx.className = "tx";
+      tx.append(previewName(d, (d.icon ? d.icon + " " : "") + d.label));
+      const act = document.createElement("div"); act.className = "row";
+      act.append(rowBtn("🗑 حذف", "red", () => { if (confirm("تحذف الرتبة " + d.label + "؟")) db.ref("rankDefs/" + id).remove(); }));
+      row.append(tx, act); box.appendChild(row);
+    });
+  }
+
+  $("rankDefForm").addEventListener("submit", e => {
+    e.preventDefault();
+    if (!isOwner()) return showErr("صناعة الرتب للمالك بس");
+    const label = $("rdLabel").value.trim(), color = $("rdColor").value;
+    if (!label || !HEX.test(color)) return showErr("تأكد من الاسم واللون");
+    const def = { label, color, fx: $("rdFx").value };
+    const icon = $("rdIcon").value.trim(); if (icon) def.icon = icon;
+    db.ref("rankDefs").push(def)
+      .then(() => { $("rankDefForm").reset(); showErr("انصنعت الرتبة ✓"); })
+      .catch(() => showErr("ما انصنعت الرتبة (تأكد من القواعد)"));
+  });
+
+  $("rankGiveForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    if (!isAdmin()) return showErr("إعطاء الرتب للإدارة بس");
+    const name = $("rankGiveName").value.trim(), id = $("rankGiveSel").value;
+    try {
+      const uid = await uidOf(name);
+      if (!uid) return showErr("ما لقيت لاعب بهذا الاسم");
+      if (id === "none") await db.ref("rankOf/" + uid).remove(); else await db.ref("rankOf/" + uid).set(id);
+      $("rankGiveForm").reset(); showErr("انحفظت ✓");
+    } catch (ex) { showErr("ما انحفظت: " + ex.code); }
+  });
+
+  /* ---------- الإيموجي ---------- */
+  const EMOJIS = "😀 😂 🤣 😊 😍 😎 🤔 😅 😭 😡 😱 🥳 😴 🤝 👍 👎 👏 🙏 💪 🔥 ❤️ 💔 ✨ ⭐ 🎉 🎮 ⛏️ ⚔️ 🗡️ 🏹 🛡️ 💎 👑 🧱 🌲 🏠 🐷 🐮 🐔 🧟 💀 👻 🤖 🎁 🍎 🍖 🌍 ☀️ 🌙 ⚡ 💥 🚀 ✅ ❌ ❓ ❗ 💬 🎯 🏆 💰 🔔".split(" ");
+  let emoTarget = null;
+  const panel = $("emojiPanel");
+  EMOJIS.forEach(em => {
+    const b = document.createElement("button"); b.type = "button"; b.textContent = em;
+    b.onclick = () => {
+      const el = $(emoTarget); if (!el) return;
+      const s = el.selectionStart == null ? el.value.length : el.selectionStart;
+      const en = el.selectionEnd == null ? el.value.length : el.selectionEnd;
+      el.setRangeText(em, s, en, "end"); el.focus();
+    };
+    panel.appendChild(b);
+  });
+  document.querySelectorAll(".emo[data-t]").forEach(btn => btn.onclick = ev => {
+    ev.stopPropagation(); emoTarget = btn.dataset.t; panel.classList.toggle("hidden");
+  });
+  document.addEventListener("click", ev => { if (!panel.contains(ev.target)) panel.classList.add("hidden"); });
+
+  /* ---------- الرسائل الصوتية (بين الأصدقاء) ---------- */
+  let rec = null, recChunks = [], recTimer = null, recCancel = false, curPair = null;
+  const audioCache = {};
+
+  function recUi(on){
+    $("micBtn").textContent = on ? "⏹ إرسال" : "🎤";
+    $("micBtn").classList.toggle("rec", on);
+    $("micCancel").classList.toggle("hidden", !on);
+  }
+  async function startRec(){
+    if (!other) return;
+    if (!navigator.mediaDevices || !window.MediaRecorder) return showErr("متصفحك ما يدعم التسجيل الصوتي");
+    const bm = blockedMsg(); if (bm) return showErr(bm);
+    if (!friends[other.uid]) return showErr("الرسائل الصوتية بين الأصدقاء بس");
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mime = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg;codecs=opus"].find(t => MediaRecorder.isTypeSupported(t));
+      rec = new MediaRecorder(stream, mime ? { mimeType: mime, audioBitsPerSecond: 24000 } : { audioBitsPerSecond: 24000 });
+      recChunks = []; recCancel = false;
+      const target = other;
+      rec.ondataavailable = e => { if (e.data && e.data.size) recChunks.push(e.data); };
+      rec.onstop = () => {
+        stream.getTracks().forEach(t => t.stop());
+        clearTimeout(recTimer); recUi(false);
+        const type = (rec && rec.mimeType) || "audio/webm"; rec = null;
+        if (recCancel || !recChunks.length) return;
+        sendVoice(new Blob(recChunks, { type }), target);
+      };
+      rec.start(); recUi(true);
+      recTimer = setTimeout(() => { if (rec && rec.state === "recording") rec.stop(); }, 20000);
+    } catch (ex) { showErr("ما قدرت أفتح المايك، اسمح للمتصفح باستخدامه"); }
+  }
+  function stopRec(cancel){ recCancel = !!cancel; if (rec && rec.state === "recording") rec.stop(); }
+  $("micBtn").onclick = () => { if (rec) stopRec(false); else startRec(); };
+  $("micCancel").onclick = () => stopRec(true);
+
+  function sendVoice(blob, target){
+    const r = new FileReader();
+    r.onload = () => {
+      const data = r.result;
+      if (typeof data !== "string" || data.length > 300000) return showErr("الرسالة الصوتية طويلة، سجّل أقل من 20 ثانية");
+      const me = myUid(), pair = pairId(me, target.uid);
+      const id = db.ref("dms/" + pair).push().key;
+      db.ref().update({
+        ["dms/" + pair + "/" + id]: { from: me, to: target.uid, name: myName(), audio: true, time: TS },
+        ["dmAudio/" + pair + "/" + id]: data
+      }).then(() => {
+        db.ref("inbox/" + target.uid + "/" + me).set({ name: myName(), time: TS, from: me });
+        db.ref("inbox/" + me + "/" + target.uid).set({ name: target.name, time: TS, from: me });
+      }).catch(() => showErr("ما انرسلت الرسالة الصوتية (للأصدقاء بس، والرسائل الخاصة لازم تكون مفعّلة)", true));
+    };
+    r.readAsDataURL(blob);
+  }
+  async function playAudio(k, btn){
+    try {
+      let src = audioCache[k];
+      if (!src) { const s = await db.ref("dmAudio/" + curPair + "/" + k).once("value"); src = s.val(); if (src) audioCache[k] = src; }
+      if (!src) return showErr("ما لقيت التسجيل");
+      const a = new Audio(src); btn.textContent = "🔊 يشتغل...";
+      a.onended = () => { btn.textContent = "▶ رسالة صوتية"; };
+      a.play().catch(() => { btn.textContent = "▶ رسالة صوتية"; showErr("ما قدرت أشغّل الصوت"); });
+    } catch (ex) { showErr("ما قدرت أحمّل الصوت: " + ex.code); }
+  }
+
+  /* ---------- إشعارات الشات العام ---------- */
+  { let ready = false; const q = db.ref("messages").limitToLast(1);
+    q.on("child_added", snap => {
+      if (!ready || !myUid()) return; const d = snap.val();
+      if (d && d.uid !== myUid() && $("pubPane").classList.contains("hidden")) { pubUnread++; updateBadges(); }
+    }, () => {});
+    q.once("value").then(() => { ready = true; }).catch(() => {}); }
+  setInterval(updateBadges, 10000);
+
+  /* ---------- التذاكر ---------- */
+  const TK_TYPE = { store: "🛒 المتجر", glitch: "🐞 قلتش", hack: "🚨 هاك/مشكلة" };
+  let ctk = null, tkRef = null, tkCb = null, tkData = null;
+  const seenGet = () => { try { return JSON.parse(localStorage.getItem("tkSeen") || "{}"); } catch (e) { return {}; } };
+  const seenSet = (id, v) => { try { const o = seenGet(); o[id] = v; localStorage.setItem("tkSeen", JSON.stringify(o)); } catch (e) {} };
+  const tag = st => { const t = document.createElement("span"); t.className = "tag " + (st === "closed" ? "closed" : "open"); t.textContent = st === "closed" ? "مغلقة" : "مفتوحة"; return t; };
+
+  function tkItem(id, v, seen){
+    const b = document.createElement("button"); b.className = "conv";
+    const n = document.createElement("span"); n.textContent = (TK_TYPE[v.type] || "") + " • " + v.title;
+    if (v.status !== "closed" && v.upd && v.upd > (seen[id] || 0)) { n.appendChild(dotEl("رد جديد")); b.classList.add("hot"); }
+    b.append(n, tag(v.status)); b.onclick = () => openTicket(id); return b;
+  }
+  function renderTickets(){
+    const box = $("tkList"), arc = $("tkArchive"); if (!box || !arc) return; box.innerHTML = ""; arc.innerHTML = "";
+    const items = Object.entries(myTk).sort((a, b) => (b[1].time || 0) - (a[1].time || 0));
+    const seen = seenGet();
+    const open = items.filter(([, v]) => v.status !== "closed"), closed = items.filter(([, v]) => v.status === "closed");
+    if (!open.length) box.innerHTML = '<div class="notice">ما عندك تذاكر مفتوحة.</div>';
+    for (const [id, v] of open) box.appendChild(tkItem(id, v, seen));
+    if (!closed.length) arc.innerHTML = '<div class="notice">الأرشيف فاضي.</div>';
+    for (const [id, v] of closed) arc.appendChild(tkItem(id, v, seen));
+  }
+
+  $("tkForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const title = $("tkTitle").value.trim(), text = $("tkText").value.trim(), type = $("tkType").value;
+    if (title.length < 3 || text.length < 5) return showErr("اكتب عنوان ونص أوضح");
+    const bm = blockedMsg(); if (bm) return showErr(bm);
+    const bad = isBad(title) || isBad(text); if (bad) return showErr(bad);
+    const me = myUid(), id = db.ref("tickets").push().key;
+    db.ref().update({
+      ["tickets/" + id]: { uid: me, name: myName(), type, title, text, status: "open", time: TS },
+      ["myTickets/" + me + "/" + id]: { type, title, time: TS, status: "open" },
+      ["lastTicket/" + me]: TS
+    }).then(() => { $("tkForm").reset(); showErr("انرسلت التذكرة ✓ بنرد عليك هنا"); openTicket(id); })
+      .catch(() => showErr("ما انرسلت: تقدر تفتح تذكرة كل دقيقتين، ويمكن أنت محظور، أو ما نشرت القواعد الجديدة", true));
+  });
+
+  function openTicket(id){
+    closeTicket(); tab("tk");
+    ctk = { id }; tkData = null;
+    $("tkView").classList.remove("hidden"); $("tkBody").innerHTML = "";
+    tkRef = db.ref("tickets/" + id);
+    tkCb = tkRef.on("value", s => {
+      if (!ctk || ctk.id !== id) return;
+      if (!s.exists()) { closeTicket(); return showErr("التذكرة انحذفت"); }
+      tkData = s.val(); renderTicketView();
+    }, () => { closeTicket(); showErr("ما قدرت أفتح التذكرة"); });
+    if (myTk[id] && myTk[id].upd) { seenSet(id, myTk[id].upd); renderTickets(); updateBadges(); }
+  }
+  function closeTicket(){
+    if (tkRef && tkCb) tkRef.off("value", tkCb);
+    tkRef = tkCb = ctk = tkData = null;
+    const v = $("tkView"); if (v) v.classList.add("hidden");
+  }
+  function renderTicketView(){
+    const t = tkData, mine = t.uid === myUid(), staff = isMod();
+    $("tkTitleView").textContent = (TK_TYPE[t.type] || "") + " • " + t.title;
+    $("tkCloseBtn").classList.toggle("hidden", t.status === "closed" || !(mine || staff));
+    $("tkOpenBtn").classList.toggle("hidden", t.status !== "closed" || !staff);
+    $("tkReplyForm").classList.toggle("hidden", t.status === "closed" && !staff);
+    const box = $("tkBody"); box.innerHTML = "";
+    const head = document.createElement("div"); head.className = "msg";
+    const n = document.createElement("span"); n.className = "n nm"; n.dataset.uid = t.uid; n.textContent = t.name;
+    const tm = document.createElement("span"); tm.className = "t"; tm.textContent = new Date(t.time).toLocaleString("ar-EG");
+    const b = document.createElement("div"); b.className = "b"; b.textContent = t.text;
+    head.append(n, badgeEl(t.uid), tm, tag(t.status), b); box.appendChild(head);
+    const reps = Object.values(t.replies || {}).sort((a, c) => (a.time || 0) - (c.time || 0));
+    for (const r of reps) {
+      const m = document.createElement("div"); m.className = "msg" + (r.uid === myUid() ? " mine" : "");
+      const rn = document.createElement("span"); rn.className = "n nm"; rn.dataset.uid = r.uid; rn.textContent = r.name;
+      const rt = document.createElement("span"); rt.className = "t"; rt.textContent = timeStr(r.time);
+      const rb = document.createElement("div"); rb.className = "b"; rb.textContent = r.text;
+      m.append(rn, badgeEl(r.uid), rt, rb); box.appendChild(m);
+    }
+    applyBadges(); box.scrollTop = box.scrollHeight;
+  }
+  $("tkBack").onclick = closeTicket;
+
+  function setTkStatus(st){
+    if (!ctk || !tkData) return;
+    const id = ctk.id, o = tkData.uid;
+    db.ref().update({ ["tickets/" + id + "/status"]: st, ["myTickets/" + o + "/" + id + "/status"]: st })
+      .catch(() => showErr("ما قدرت أغير حالة التذكرة"));
+  }
+  $("tkCloseBtn").onclick = () => setTkStatus("closed");
+  $("tkOpenBtn").onclick = () => setTkStatus("open");
+
+  $("tkReplyForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const text = $("tkReplyText").value.trim(); if (!ctk || !tkData || !text) return;
+    const bm = blockedMsg(); if (bm) return showErr(bm);
+    const bad = isBad(text); if (bad) return showErr(bad);
+    const id = ctk.id, rid = db.ref("tickets/" + id + "/replies").push().key, up = {};
+    up["tickets/" + id + "/replies/" + rid] = { uid: myUid(), name: myName(), text, time: TS };
+    if (tkData.uid !== myUid()) up["myTickets/" + tkData.uid + "/" + id + "/upd"] = TS;
+    db.ref().update(up).catch(() => showErr("ما انرسل الرد (التذكرة يمكن مغلقة)", true));
+    $("tkReplyText").value = "";
+  });
+
+  function renderTkStaff(){
+    const box = $("tkStaffList"); if (!box) return; box.innerHTML = "";
+    const items = Object.entries(tkAll).sort((a, b) => (b[1].time || 0) - (a[1].time || 0));
+    if (!items.length) { box.innerHTML = '<div class="notice">ما فيه تذاكر.</div>'; return; }
+    const row = ([id, t]) => {
+      const btns = [rowBtn("فتح", "", () => openTicket(id))];
+      if (isAdmin()) btns.push(rowBtn("🗑", "red", () => { if (confirm("تحذف التذكرة؟")) db.ref().update({ ["tickets/" + id]: null, ["myTickets/" + t.uid + "/" + id]: null }).catch(() => showErr("ما انحذفت")); }));
+      return makeRow((TK_TYPE[t.type] || "") + " • " + t.name + " • " + t.title, btns, t.status !== "closed" ? "مفتوحة" : false);
+    };
+    const open = items.filter(([, t]) => t.status !== "closed"), closed = items.filter(([, t]) => t.status === "closed");
+    const h1 = document.createElement("div"); h1.className = "notice"; h1.textContent = "🟢 المفتوحة (" + open.length + ")"; box.appendChild(h1);
+    if (!open.length) { const e = document.createElement("div"); e.className = "notice"; e.textContent = "ما فيه تذاكر مفتوحة."; box.appendChild(e); }
+    open.forEach(it => box.appendChild(row(it)));
+    const d = document.createElement("details"); d.style.marginTop = "10px";
+    const sm = document.createElement("summary"); sm.style.cursor = "pointer"; sm.style.color = "var(--muted)"; sm.textContent = "🗄️ أرشيف التذاكر المغلقة (" + closed.length + ")";
+    d.appendChild(sm); closed.forEach(it => d.appendChild(row(it))); box.appendChild(d);
+  }
+
+  /* ---------- القروبات ---------- */
+  let cg = null, gMsgRef = null, gMsgCb = null, gMsgRm = null, gMemRef = null, gMemCb = null, lastG = 0, gMembersData = {};
+
+  function renderGroups(){
+    const il = $("grInvList"), gl = $("grList"); if (!il || !gl) return;
+    il.innerHTML = ""; gl.innerHTML = "";
+    const inv = Object.entries(grInv);
+    if (!inv.length) il.innerHTML = '<div class="notice">ما عندك دعوات.</div>';
+    for (const [gid, v] of inv) il.appendChild(makeRow((v.fromName || "؟") + " يدعوك لقروب: " + v.name, [
+      rowBtn("قبول", "", () => acceptGroup(gid, v.name)), rowBtn("رفض", "red", () => db.ref("groupInvites/" + myUid() + "/" + gid).remove())], "دعوة جديدة"));
+    const gs = Object.entries(groupsMine).sort((a, b) => grUnread(b[0]) - grUnread(a[0]));
+    if (!gs.length) gl.innerHTML = '<div class="notice">ما أنت في أي قروب. سوّ واحد من فوق، أو انتظر دعوة.</div>';
+    for (const [gid, v] of gs) {
+      const b = document.createElement("button"); b.className = "conv";
+      const n = document.createElement("span"); n.textContent = "👥 " + v.name;
+      if (grUnread(gid)) { n.appendChild(dotEl("رسائل جديدة")); n.style.fontWeight = "700"; b.classList.add("hot"); }
+      b.append(n); b.onclick = () => openGroup(gid, v.name); gl.appendChild(b);
+    }
+  }
+
+  $("grForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const name = $("grName").value.trim(); if (!name) return;
+    const bm = blockedMsg(); if (bm) return showErr(bm);
+    const bad = isBad(name); if (bad) return showErr(bad);
+    if (Object.keys(groupsMine).length >= 10) return showErr("وصلت الحد الأقصى (10 قروبات)");
+    const me = myUid(), id = db.ref("groups").push().key;
+    try {
+      await db.ref("groups/" + id).set({ name, owner: me, time: TS, members: { [me]: { name: myName() } } });
+      await db.ref("myGroups/" + me + "/" + id).set({ name });
+      $("grForm").reset(); showErr("انصنع القروب ✓ افتحه وادعُ أصحابك"); openGroup(id, name);
+    } catch (ex) { showErr("ما انصنع القروب (تأكد إنك حدّثت القواعد Rules): " + ex.code, true); }
+  });
+
+  async function acceptGroup(gid, name){
+    const me = myUid();
+    try {
+      await db.ref("groups/" + gid + "/members/" + me).set({ name: myName() });
+      await db.ref("myGroups/" + me + "/" + gid).set({ name });
+      await db.ref("groupInvites/" + me + "/" + gid).remove();
+      openGroup(gid, name);
+    } catch (ex) { showErr("ما قدرت أنضم (يمكن القروب انحذف أو امتلأ)"); db.ref("groupInvites/" + me + "/" + gid).remove().catch(() => {}); }
+  }
+
+  function openGroup(gid, name){
+    closeGroup();
+    cg = { id: gid, name, owner: null }; gMembersData = {};
+    $("gTitle").textContent = name; $("gMsgs").innerHTML = ""; $("gInfo").classList.add("hidden");
+    $("gview").classList.remove("hidden"); tab("gr");
+    if (gLast[gid]) seenSet2("g:" + gid, gLast[gid].time || 0);
+    gMemRef = db.ref("groups/" + gid);
+    gMemCb = gMemRef.on("value", s => {
+      if (!cg || cg.id !== gid) return;
+      if (!s.exists()) return goneGroup();
+      const v = s.val(); cg.owner = v.owner; cg.name = v.name || name; gMembersData = v.members || {};
+      if (!gMembersData[myUid()]) return goneGroup();
+      $("gTitle").textContent = cg.name; renderMembers();
+    }, () => goneGroup());
+    gMsgRef = db.ref("groupMsgs/" + gid).limitToLast(100);
+    gMsgCb = gMsgRef.on("child_added", snap => {
+      const d = snap.val(); if (d.uid !== myUid() && blocked[d.uid]) return;
+      const box = makeMsg(d, "group", d.uid === myUid(), snap.key); box.dataset.k = snap.key;
+      if (d.uid === myUid() || (cg && cg.owner === myUid()))
+        box.querySelector(".acts").append(actBtn("🗑", "", "حذف", () => removeItem("groupMsgs/" + gid, snap.key)));
+      $("gMsgs").appendChild(box); applyBadges(); $("gMsgs").scrollTop = $("gMsgs").scrollHeight;
+    }, () => {});
+    gMsgRm = gMsgRef.on("child_removed", snap => {
+      const el = $("gMsgs").querySelector('[data-k="' + snap.key + '"]'); if (el) el.remove();
+    });
+  }
+  function closeGroup(){
+    if (gMsgRef) { if (gMsgCb) gMsgRef.off("child_added", gMsgCb); if (gMsgRm) gMsgRef.off("child_removed", gMsgRm); }
+    if (gMemRef && gMemCb) gMemRef.off("value", gMemCb);
+    gMsgRef = gMsgCb = gMsgRm = gMemRef = gMemCb = cg = null;
+    const v = $("gview"); if (v) v.classList.add("hidden");
+  }
+  function goneGroup(){
+    const id = cg && cg.id; closeGroup();
+    if (id && myUid()) db.ref("myGroups/" + myUid() + "/" + id).remove().catch(() => {});
+    showErr("القروب انحذف أو انطردت منه");
+  }
+
+  function renderMembers(){
+    const box = $("gMembers"); box.innerHTML = "";
+    const amOwner = cg.owner === myUid();
+    $("gDel").classList.toggle("hidden", !amOwner);
+    $("gLeave").classList.toggle("hidden", amOwner);
+    for (const [uid, m] of Object.entries(gMembersData)) {
+      const btns = [];
+      if (amOwner && uid !== myUid()) btns.push(rowBtn("طرد", "red", () => { if (confirm("تطرد " + m.name + "؟")) db.ref("groups/" + cg.id + "/members/" + uid).remove().catch(() => showErr("ما انطرد")); }));
+      box.appendChild(makeRow((uid === cg.owner ? "👑 " : "") + m.name, btns));
+    }
+    const sel = $("gInvSel"); sel.innerHTML = "";
+    for (const [uid, v] of Object.entries(friends)) if (!gMembersData[uid]) { const o = document.createElement("option"); o.value = uid; o.textContent = v.name; sel.appendChild(o); }
+    $("gInvBtn").disabled = !sel.options.length;
+    if (!sel.options.length) { const o = document.createElement("option"); o.textContent = "ما فيه أصدقاء تدعوهم"; sel.appendChild(o); }
+  }
+
+  $("gInfoBtn").onclick = () => $("gInfo").classList.toggle("hidden");
+  $("gBack").onclick = closeGroup;
+  $("gInvBtn").onclick = () => {
+    const uid = $("gInvSel").value; if (!cg || !uid || !friends[uid]) return;
+    if (Object.keys(gMembersData).length >= 20) return showErr("القروب ممتلئ (20 عضو)");
+    db.ref("groupInvites/" + uid + "/" + cg.id).set({ name: cg.name, from: myUid(), fromName: myName(), time: TS })
+      .then(() => showErr("انرسلت الدعوة لـ " + friends[uid].name + " ✓"))
+      .catch(() => showErr("ما انرسلت الدعوة (لازم يكون صديقك)"));
+  };
+  $("gLeave").onclick = () => {
+    if (!cg || !confirm("تطلع من القروب؟")) return;
+    const id = cg.id, me = myUid(); closeGroup();
+    db.ref("groups/" + id + "/members/" + me).remove().catch(() => {});
+    db.ref("myGroups/" + me + "/" + id).remove().catch(() => {});
+  };
+  $("gDel").onclick = async () => {
+    if (!cg || cg.owner !== myUid() || !confirm("تحذف القروب وكل رسائله نهائي؟")) return;
+    const id = cg.id; closeGroup();
+    try { await db.ref("groupMsgs/" + id).remove(); await db.ref("groups/" + id).remove(); await db.ref("myGroups/" + myUid() + "/" + id).remove(); }
+    catch (ex) { showErr("ما انحذف القروب"); }
+  };
+  $("gForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const body = $("gText").value.trim(); if (!cg || !body) return;
+    const bm = blockedMsg(); if (bm) return showErr(bm);
+    const now = Date.now(); if (now - lastG < COOLDOWN_MS) return showErr("استنى شوي قبل الرسالة الجاية");
+    const bad = isBad(body); if (bad) return showErr(bad);
+    lastG = now;
+    db.ref("groupMsgs/" + cg.id).push({ uid: myUid(), name: myName(), text: body, time: TS })
+      .catch(() => showErr("ما انرسلت (يمكن انطردت أو أنت مكتوم)", true));
+    $("gText").value = "";
+  });
+
+  /* ---------- المكالمات الصوتية بين الأصدقاء ---------- */
+  let peer = null, activeCall = null, localStream = null, callTimer = null, goneTimer = null, callRefOff = null;
+  let callState = "idle", callWith = null, incoming = null, ringTimer = null;
+  const RING_MS = 120000; // الاتصال يرن دقيقتين
+
+  function callUi(){
+    const show = callState !== "idle";
+    $("callBar").classList.toggle("hidden", !show);
+    $("callAccept").classList.toggle("hidden", callState !== "ringing");
+    $("callEnd").textContent = callState === "ringing" ? "رفض" : "إنهاء";
+    let t = "";
+    if (callState === "ringing" && incoming) t = "📞 " + incoming.name + " يتصل فيك";
+    else if (callState === "calling" && callWith) t = "📞 جاري الاتصال بـ " + callWith.name + "...";
+    else if (callState === "live" && callWith) t = "🔊 متصل مع " + callWith.name;
+    $("callText").textContent = t;
+  }
+
+  function cleanupCall(msg){
+    const wasCalling = callState === "calling", who = callWith;
+    callState = "idle";
+    clearTimeout(callTimer); clearTimeout(goneTimer); clearTimeout(ringTimer);
+    if (callRefOff) { callRefOff(); callRefOff = null; }
+    try { if (activeCall) activeCall.close(); } catch (e) {}
+    try { if (peer) peer.destroy(); } catch (e) {}
+    if (localStream) localStream.getTracks().forEach(t => t.stop());
+    $("remoteAudio").srcObject = null;
+    if (wasCalling && who && myUid()) db.ref("calls/" + who.uid + "/" + myUid()).remove().catch(() => {});
+    peer = activeCall = localStream = null; callWith = null; incoming = null;
+    callUi(); if (msg) showErr(msg);
+  }
+
+  function setupCall(call){
+    activeCall = call;
+    call.on("stream", rs => {
+      const a = $("remoteAudio"); a.srcObject = rs; a.play().catch(() => {});
+      clearTimeout(callTimer); clearTimeout(goneTimer);
+      callState = "live"; callUi();
+    });
+    call.on("close", () => { if (callState !== "idle") cleanupCall("انتهت المكالمة"); });
+    call.on("error", () => cleanupCall("صار خطأ في المكالمة"));
+  }
+
+  async function getMic(){
+    if (!window.Peer) { showErr("مكتبة الاتصال ما تحمّلت، تأكد من الإنترنت وحدّث الصفحة"); return null; }
+    if (!navigator.mediaDevices) { showErr("الاتصال الصوتي يحتاج رابط آمن (https)"); return null; }
+    try { return await navigator.mediaDevices.getUserMedia({ audio: true }); }
+    catch (e) { showErr("اسمح للمتصفح باستخدام المايك"); return null; }
+  }
+
+  async function startCall(uid, name){
+    if (!myUid()) return showErr("سجّل دخول أول");
+    if (callState !== "idle") return showErr("أنت في مكالمة الحين");
+    const bm = blockedMsg(); if (bm) return showErr(bm);
+    if (!friends[uid]) return showErr("الاتصال بين الأصدقاء بس");
+    const stream = await getMic(); if (!stream) return;
+    localStream = stream; callWith = { uid, name }; callState = "calling"; callUi();
+    peer = new Peer();
+    peer.on("error", () => cleanupCall("ما قدرت أتصل (الشبكة ما تسمح). جرب Discord"));
+    peer.on("call", call => { call.answer(localStream); setupCall(call); });
+    peer.on("open", id => {
+      db.ref("calls/" + uid + "/" + myUid()).set({ name: myName(), peer: id, time: TS })
+        .catch(() => cleanupCall("ما انرسل الاتصال (لازم تكونون أصدقاء، وتأكد إنك حدّثت القواعد Rules)"));
+    });
+    const r = db.ref("calls/" + uid + "/" + myUid());
+    let seen = false;
+    const cb = s => {
+      if (s.exists()) { seen = true; return; }
+      if (seen && callState === "calling")
+        goneTimer = setTimeout(() => { if (callState === "calling") cleanupCall("ما تم الاتصال (رفض أو الشبكة ما تسمح)"); }, 12000);
+    };
+    r.on("value", cb, () => {}); callRefOff = () => r.off("value", cb);
+    callTimer = setTimeout(() => { if (callState === "calling") cleanupCall("ما رد " + name); }, RING_MS);
+  }
+
+  async function acceptCall(){
+    if (callState !== "ringing" || !incoming) return;
+    const inc = incoming;
+    const stream = await getMic(); if (!stream) return declineCall();
+    localStream = stream; callWith = { uid: inc.from, name: inc.name }; callState = "calling"; incoming = null; callUi();
+    peer = new Peer();
+    peer.on("error", () => cleanupCall("ما قدرت أتصل (الشبكة ما تسمح). جرب Discord"));
+    peer.on("open", () => {
+      setupCall(peer.call(inc.peer, localStream));
+      db.ref("calls/" + myUid() + "/" + inc.from).remove().catch(() => {});
+    });
+    callTimer = setTimeout(() => { if (callState === "calling") cleanupCall("ما تم الاتصال، جرب Discord"); }, 20000);
+  }
+  function declineCall(){
+    if (incoming) db.ref("calls/" + myUid() + "/" + incoming.from).remove().catch(() => {});
+    incoming = null; callState = "idle"; callUi();
+  }
+
+  $("callAccept").onclick = acceptCall;
+  $("callEnd").onclick = () => { if (callState === "ringing") declineCall(); else cleanupCall(); };
+  $("callBtn").onclick = () => { if (other) startCall(other.uid, other.name); };
+</script>
+</body>
+</html>

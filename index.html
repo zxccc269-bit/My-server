@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WandSMP | سيرفر ماينكرافت</title>
+<meta name="description" content="سيرفر ماينكرافت عربي - انضم الآن والعب مع أصدقائك">
+<style>
+  :root{
+    --bg:#12161c; --card:#1b212b; --text:#e8edf4; --muted:#9aa6b6;
+    --green:#5cb85c; --green-dark:#3d8b3d; --accent:#f5b942; --border:#2a3240;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Segoe UI",Tahoma,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 20px}
+
+  nav{position:sticky;top:0;background:rgba(18,22,28,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);z-index:10}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+  .logo{font-weight:800;font-size:1.2rem;color:var(--green)}
+  nav ul{display:flex;gap:20px;list-style:none;font-size:.95rem;color:var(--muted)}
+  nav ul a:hover{color:var(--text)}
+
+  .hero{text-align:center;padding:90px 0 70px;background:
+    linear-gradient(180deg,rgba(92,184,92,.12),transparent 70%)}
+  .hero h1{font-size:clamp(2rem,6vw,3.6rem);font-weight:800}
+  .hero h1 span{color:var(--green)}
+  .hero p{color:var(--muted);margin:14px auto 30px;max-width:520px;font-size:1.1rem}
+
+  .ip-box{display:inline-flex;align-items:center;gap:10px;background:var(--card);border:2px solid var(--border);
+    border-radius:12px;padding:10px 12px 10px 18px;font-family:Consolas,monospace;font-size:1.15rem}
+  .ip-box button{background:var(--green);color:#0b1a0b;border:0;border-radius:8px;padding:9px 18px;
+    font-weight:700;font-size:.95rem;cursor:pointer;font-family:inherit;transition:.15s}
+  .ip-box button:hover{background:#74cc74}
+
+  .status{margin-top:22px;display:inline-flex;gap:8px;align-items:center;color:var(--muted);font-size:.95rem}
+  .dot{width:10px;height:10px;border-radius:50%;background:#777}
+  .dot.on{background:var(--green);box-shadow:0 0 10px var(--green)}
+  .dot.off{background:#e05555}
+
+  section{padding:60px 0}
+  h2{font-size:1.8rem;margin-bottom:28px;text-align:center}
+  h2::after{content:"";display:block;width:50px;height:4px;background:var(--green);margin:10px auto 0;border-radius:2px}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;transition:.2s}
+  .card:hover{transform:translateY(-4px);border-color:var(--green-dark)}
+  .card .icon{font-size:2rem;margin-bottom:10px}
+  .card h3{margin-bottom:6px;font-size:1.1rem}
+  .card p{color:var(--muted);font-size:.95rem}
+
+  .rules{max-width:640px;margin:0 auto;list-style:none;counter-reset:r}
+  .rules li{counter-increment:r;background:var(--card);border:1px solid var(--border);border-radius:10px;
+    padding:14px 18px;margin-bottom:10px;display:flex;gap:14px;align-items:center}
+  .rules li::before{content:counter(r);background:var(--green);color:#0b1a0b;font-weight:800;
+    min-width:30px;height:30px;border-radius:50%;display:grid;place-items:center}
+
+  .join{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;max-width:700px;margin:0 auto}
+  .join .card{text-align:center}
+  .join .card b{color:var(--accent);font-family:Consolas,monospace}
+
+  .btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+  .btn{padding:12px 28px;border-radius:10px;font-weight:700;border:2px solid var(--green);color:var(--green);transition:.15s}
+  .btn.fill{background:var(--green);color:#0b1a0b}
+  .btn:hover{transform:translateY(-2px)}
+
+  footer{border-top:1px solid var(--border);text-align:center;padding:26px 0;color:var(--muted);font-size:.9rem}
+
+  .hidden{display:none !important}
+  .newsDel{display:none;margin-top:8px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:4px 10px;cursor:pointer;font-family:inherit}
+  body.is-admin .newsDel{display:inline-block}
+  .newsDel:hover{color:#e05555;border-color:#e05555}
+  #newsForm{display:flex;flex-direction:column;gap:10px;max-width:640px;margin:0 auto 24px}
+  #newsForm input,#newsForm textarea{background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:12px 14px;font-size:1rem;font-family:inherit}
+  #newsForm textarea{min-height:90px;resize:vertical}
+  #newsForm button{background:var(--green);color:#0b1a0b;border:0;border-radius:10px;padding:12px 22px;font-weight:700;font-size:1rem;cursor:pointer;font-family:inherit}
+  .accform{display:flex;flex-direction:column;gap:10px}
+  .accform input{background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:12px 14px;font-size:1rem;font-family:inherit}
+  .accform input:focus{outline:2px solid var(--green)}
+  .accsw{margin-top:12px;text-align:center;color:var(--muted);font-size:.9rem}
+  .accsw a{color:var(--green);font-weight:700;cursor:pointer}
+  .accmsg{margin-top:10px;text-align:center;min-height:22px;font-size:.9rem}
+
+  @media(max-width:600px){nav ul{display:none}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a href="#" class="logo">⛏ WandSMP</a>
+    <ul>
+      <li><a href="#account">حسابي</a></li>
+      <li><a href="#news">الأخبار</a></li>
+      <li><a href="#features">المميزات</a></li>
+      <li><a href="#rules">القوانين</a></li>
+      <li><a href="#join">كيف تدخل</a></li>
+      <li><a href="#community">المجتمع</a></li>
+      <li><a href="chat.html">الشات</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>أهلاً بك في <span>WandSMP</span></h1>
+    <p>سيرفر ماينكرافت عربي مليء بالمغامرات والفعاليات. ادخل الآن والعب مع أصدقائك!</p>
+
+    <div class="ip-box">
+      <span id="ip">wandSMP.asrv.qzz.io</span>
+      <button id="copyBtn">نسخ الـ IP</button>
+    </div>
+
+    <div class="status">
+      <span class="dot" id="dot"></span>
+      <span id="statusText">جارٍ فحص حالة السيرفر...</span>
+    </div>
+
+    <div style="margin-top:22px">
+      <a class="btn fill" href="#account">🔐 سجّل حسابك / دخول</a>
+    </div>
+  </div>
+</header>
+
+<section id="account">
+  <div class="wrap">
+    <h2>🔐 حسابك</h2>
+    <div class="card" style="max-width:480px;margin:0 auto">
+      <div id="accOut">
+        <p style="margin-bottom:14px;color:var(--muted)">سوِّ حساب أو سجّل دخول عشان تستخدم الشات والمنشورات والأصدقاء. الإيميل نستخدمه لاستعادة كلمة السر بس، وما يظهر لأي أحد. خلّ أحد من أهلك يعرف قبل ما تسجّل.</p>
+        <form id="accForm" class="accform">
+          <input id="accUser" placeholder="اسمك (اسم المستخدم، إنجليزي 3-16)" maxlength="16" required autocomplete="username">
+          <input id="accEmail" type="email" placeholder="إيميلك" maxlength="80" required autocomplete="email">
+          <input id="accPass" type="password" placeholder="كلمة السر (6 أحرف أو أكثر)" minlength="6" required autocomplete="new-password">
+          <button class="btn fill" id="accBtn" style="cursor:pointer;font-family:inherit;font-size:1rem">إنشاء حساب</button>
+        </form>
+        <p class="accsw"><span id="accSwText">عندك حساب؟</span> <a id="accSwLink">سجّل دخول</a></p>
+        <p class="accsw hidden" id="accForgot"><a id="accForgotLink">نسيت كلمة السر؟</a></p>
+        <p id="accMsg" class="accmsg"></p>
+      </div>
+      <div id="accIn" class="hidden" style="text-align:center">
+        <p style="margin-bottom:6px">✅ أنت مسجّل دخول باسم <b id="accName"></b></p>
+        <div class="btns">
+          <a class="btn fill" href="chat.html">💬 افتح الشات</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="news">
+  <div class="wrap">
+    <h2>📢 أخبار وإعلانات الإدارة</h2>
+    <form id="newsForm" class="card hidden">
+      <b>✍️ انشر خبر جديد (يظهر لك لأنك من الإدارة)</b>
+      <input id="newsTitle" placeholder="عنوان الخبر" maxlength="80" required>
+      <textarea id="newsText" placeholder="نص الخبر..." maxlength="1000" required></textarea>
+      <button>نشر الخبر</button>
+      <small id="newsMsg" style="color:var(--muted)"></small>
+    </form>
+    <div class="grid" id="newsList">
+      <div class="card"><p>جارٍ تحميل الأخبار...</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <h2>مميزاتنا</h2>
+    <div class="grid">
+      <div class="card"><div class="icon">⚔️</div><h3>سيرفايفل</h3><p>عالم سيرفايفل مع اقتصاد وتجارة بين اللاعبين.</p></div>
+      <div class="card"><div class="icon">🛡️</div><h3>حماية الأراضي</h3><p>احمِ بيتك وممتلكاتك من التخريب والسرقة.</p></div>
+      <div class="card"><div class="icon">🎉</div><h3>فعاليات أسبوعية</h3><p>مسابقات وجوائز وفعاليات ممتعة طول الأسبوع.</p></div>
+      <div class="card"><div class="icon">💬</div><h3>مجتمع متعاون</h3><p>إدارة متواجدة ولاعبين ودودين يساعدونك.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="rules">
+  <div class="wrap">
+    <h2>قوانين السيرفر</h2>
+    <ol class="rules">
+      <li>احترام جميع اللاعبين وعدم السب أو الإساءة.</li>
+      <li>ممنوع الهاك والمودات الغشاشة.</li>
+      <li>ممنوع تخريب مباني الآخرين أو سرقتها.</li>
+      <li>ممنوع الإعلان عن سيرفرات أخرى.</li>
+      <li>اتباع تعليمات الإدارة دائماً.</li>
+    </ol>
+  </div>
+</section>
+
+<section id="join">
+  <div class="wrap">
+    <h2>كيف تدخل السيرفر؟</h2>
+    <div class="join">
+      <div class="card"><h3>Java Edition</h3><p>العنوان:</p><b>wandSMP.asrv.qzz.io</b></div>
+      <div class="card"><h3>Bedrock Edition</h3><p>العنوان:</p><b>wandSMP.asrv.qzz.io</b><p>المنفذ: <b>19132</b></p></div>
+    </div>
+    <p style="text-align:center;color:var(--muted);margin-top:18px">الإصدار المدعوم: 1.21.x</p>
+  </div>
+</section>
+
+<section id="community">
+  <div class="wrap">
+    <h2>انضم لمجتمعنا</h2>
+    <div class="btns">
+      <a class="btn fill" href="chat.html">الشات 💬</a>
+      <a class="btn" href="https://discord.gg/xxxxxx" target="_blank" rel="noopener">Discord</a>
+      <a class="btn" href="https://youtube.com/@yourchannel" target="_blank" rel="noopener">YouTube</a>
+      <a class="btn" href="https://tiktok.com/@youraccount" target="_blank" rel="noopener">TikTok</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div id="footLogout" class="hidden" style="margin-bottom:16px">
+      <button id="logoutBtn" style="background:#c0392b;color:#fff;border:0;border-radius:10px;padding:10px 26px;font-weight:700;font-size:1rem;cursor:pointer;font-family:inherit">🚪 تسجيل الخروج من الحساب</button>
+    </div>
+    © 2026 WandSMP — غير تابع لـ Mojang أو Microsoft
+  </div>
+</footer>
+
+<script>
+  // ====== عدّل هنا ======
+  const SERVER_IP = "wandSMP.asrv.qzz.io";
+  // ======================
+
+  document.getElementById("ip").textContent = SERVER_IP;
+
+  document.getElementById("copyBtn").addEventListener("click", async (e) => {
+    try { await navigator.clipboard.writeText(SERVER_IP); } catch {}
+    const b = e.target; b.textContent = "تم النسخ ✓";
+    setTimeout(() => b.textContent = "نسخ الـ IP", 1800);
+  });
+
+  // فحص حالة السيرفر (واجهة مجانية mcsrvstat)
+  fetch("https://api.mcsrvstat.us/3/" + SERVER_IP)
+    .then(r => r.json())
+    .then(d => {
+      const dot = document.getElementById("dot");
+      const t = document.getElementById("statusText");
+      if (d.online) {
+        dot.className = "dot on";
+        t.textContent = "السيرفر شغّال — " + d.players.online + " / " + d.players.max + " لاعب";
+      } else {
+        dot.className = "dot off";
+        t.textContent = "السيرفر مغلق حالياً";
+      }
+    })
+    .catch(() => {
+      document.getElementById("statusText").textContent = "تعذّر فحص الحالة";
+    });
+</script>
+
+<!-- أخبار الإدارة من Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+  try {
+    firebase.initializeApp({
+      apiKey: "AIzaSyCD2_omUv2O9H3B0YEhlQ1KJbKzdBxrIx0",
+      authDomain: "wandsmp-98824.firebaseapp.com",
+      databaseURL: "https://wandsmp-98824-default-rtdb.firebaseio.com",
+      projectId: "wandsmp-98824",
+      appId: "1:375935441371:web:38ad3f4501f91d452a6ffe"
+    });
+    firebase.database().ref("announcements").limitToLast(10).on("value", snap => {
+      const box = document.getElementById("newsList");
+      box.innerHTML = "";
+      const items = Object.entries(snap.val() || {}).map(([k, v]) => Object.assign({ _k: k }, v)).sort((a, b) => (b.time || 0) - (a.time || 0));
+      if (!items.length) {
+        box.innerHTML = '<div class="card"><p>ما فيه أخبار حالياً. ترقّب الجديد!</p></div>';
+        return;
+      }
+      items.forEach(a => {
+        const card = document.createElement("div"); card.className = "card";
+        const h = document.createElement("h3"); h.textContent = a.title;
+        const p = document.createElement("p"); p.style.whiteSpace = "pre-wrap"; p.textContent = a.text;
+        const d = document.createElement("p"); d.style.fontSize = ".8rem"; d.style.marginTop = "8px";
+        d.textContent = (a.byName ? a.byName + " • " : "") + new Date(a.time).toLocaleDateString("ar-EG");
+        card.append(h, p, d);
+        const del = document.createElement("button"); del.className = "newsDel"; del.textContent = "🗑 حذف الخبر";
+        del.onclick = () => { if (confirm("تحذف هذا الخبر؟")) firebase.database().ref("announcements/" + a._k).remove().catch(() => alert("ما انحذف")); };
+        card.appendChild(del);
+        box.appendChild(card);
+      });
+    }, () => {
+      document.getElementById("newsList").innerHTML = '<div class="card"><p>تعذّر تحميل الأخبار.</p></div>';
+    });
+  } catch (e) {}
+</script>
+
+<!-- تسجيل الحساب -->
+<script>
+  (function () {
+    if (typeof firebase === "undefined" || !firebase.apps.length) return;
+    const auth = firebase.auth(), db = firebase.database();
+    const $ = id => document.getElementById(id);
+    const key = n => n.toLowerCase();
+    const emailOf = n => key(n) + "@wandsmp.local";   // بدون إيميل حقيقي
+    let signup = true;
+
+    const msg = (m, ok) => { const e = $("accMsg"); e.textContent = m; e.style.color = ok ? "var(--green)" : "#ff7b7b"; };
+    const errText = c => ({
+      "auth/email-already-in-use": "هذا الإيميل مسجّل من قبل، سجّل دخول",
+      "auth/invalid-email": "الإيميل غير صحيح",
+      "auth/invalid-credential": "الاسم أو كلمة السر غلط",
+      "auth/wrong-password": "الاسم أو كلمة السر غلط",
+      "auth/user-not-found": "الاسم أو كلمة السر غلط",
+      "auth/weak-password": "كلمة السر ضعيفة (6 أحرف على الأقل)",
+      "auth/operation-not-allowed": "فعّل Email/Password من Firebase ← Authentication",
+      "auth/configuration-not-found": "اضغط Get started في Firebase ← Authentication",
+      "auth/too-many-requests": "محاولات كثيرة، استنى شوي"
+    })[c] || ("خطأ: " + c);
+
+    const setMode = () => {
+      $("accBtn").textContent = signup ? "إنشاء حساب" : "دخول";
+      $("accSwText").textContent = signup ? "عندك حساب؟" : "ما عندك حساب؟";
+      $("accSwLink").textContent = signup ? "سجّل دخول" : "أنشئ حساب";
+      $("accEmail").classList.toggle("hidden", !signup);
+      $("accEmail").required = signup;
+      $("accForgot").classList.toggle("hidden", signup);
+      $("accUser").placeholder = signup ? "اسمك (اسم المستخدم، إنجليزي 3-16)" : "اسم المستخدم أو الإيميل";
+      $("accUser").maxLength = signup ? 16 : 80;
+      $("accPass").autocomplete = signup ? "new-password" : "current-password";
+      msg("");
+    };
+    $("accSwLink").onclick = () => { signup = !signup; setMode(); };
+
+    $("accForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      const id = $("accUser").value.trim(), pass = $("accPass").value;
+      try {
+        if (signup) {
+          const name = id, email = $("accEmail").value.trim();
+          if (!/^[A-Za-z0-9_]{3,16}$/.test(name)) return msg("الاسم: حروف إنجليزية وأرقام و _ فقط (3-16)");
+          const taken = await db.ref("usernames/" + key(name)).once("value");
+          if (taken.exists()) return msg("الاسم مأخوذ، اختر اسم ثاني");
+          const cred = await auth.createUserWithEmailAndPassword(email, pass);
+          try { await db.ref("usernames/" + key(name)).set(cred.user.uid); }
+          catch (er) { await cred.user.delete().catch(() => {}); return msg("الاسم مأخوذ، اختر اسم ثاني"); }
+          await cred.user.updateProfile({ displayName: name });
+          db.ref("profiles/" + cred.user.uid).set({ name }).catch(() => {});
+          $("accName").textContent = name;
+          msg("انسوّى حسابك ✓", true);
+        } else {
+          const email = id.includes("@") ? id : key(id) + "@wandsmp.local";   // الحسابات القديمة بدون إيميل
+          await auth.signInWithEmailAndPassword(email, pass);
+          msg("تم تسجيل الدخول ✓", true);
+        }
+        $("accForm").reset();
+      } catch (ex) { msg(errText(ex.code)); }
+    });
+
+    $("accForgotLink").onclick = async () => {
+      const id = $("accUser").value.trim();
+      if (!id.includes("@")) return msg("اكتب إيميلك في الخانة اللي فوق (الحسابات القديمة بدون إيميل ما فيها استعادة)");
+      try { await auth.sendPasswordResetEmail(id); msg("أرسلنا لك رابط استعادة كلمة السر على إيميلك ✓", true); }
+      catch (ex) { msg(errText(ex.code)); }
+    };
+
+
+    $("logoutBtn").onclick = () => auth.signOut();
+
+    auth.onAuthStateChanged(u => {
+      $("accOut").classList.toggle("hidden", !!u);
+      $("accIn").classList.toggle("hidden", !u);
+      $("footLogout").classList.toggle("hidden", !u);
+      $("accName").textContent = u ? (u.displayName || "") : "";
+      document.body.classList.remove("is-admin"); $("newsForm").classList.add("hidden");
+      if (u) db.ref("bans/" + u.uid).once("value").then(b => {
+        const v0 = b.val() || {};
+        if (b.exists() && (!v0.until || v0.until > Date.now())) {
+          const v = v0;
+          auth.signOut();
+          msg("🚫 حسابك محظور من الموقع" + (v.reason ? " — السبب: " + v.reason : ""));
+        }
+      }).catch(() => {});
+      if (u) db.ref("roles/" + u.uid).once("value").then(s => {
+        if (["admin", "owner"].includes(s.val())) { document.body.classList.add("is-admin"); $("newsForm").classList.remove("hidden"); }
+      }).catch(() => {});
+    });
+
+    $("newsForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const u = auth.currentUser, title = $("newsTitle").value.trim(), text = $("newsText").value.trim();
+      const nm = $("newsMsg");
+      if (!u || !title || !text) return;
+      db.ref("announcements").push({ title, text, time: firebase.database.ServerValue.TIMESTAMP, by: u.uid, byName: u.displayName || "" })
+        .then(() => { $("newsForm").reset(); nm.textContent = "اننشر الخبر ✓"; })
+        .catch(ex => { nm.textContent = "ما اننشر: " + (ex && ex.code || ex); });
+    });
+  })();
+</script>
+</body>
+</html>

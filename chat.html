@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>الشات | WandSMP</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap');
   :root{--bg:#12161c;--card:#1b212b;--text:#e8edf4;--muted:#9aa6b6;--green:#5cb85c;--border:#2a3240;--red:#e05555}
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:"Segoe UI",Tahoma,Arial,sans-serif;background:var(--bg);color:var(--text);
@@ -87,6 +88,29 @@
   #emojiPanel button{background:none;border:0;font-size:1.4rem;cursor:pointer;border-radius:8px;padding:4px}
   #emojiPanel button:hover{background:var(--bg)}
   .rec{background:#7a1f1f !important;color:#fff !important}
+  @keyframes ringPulse{0%,100%{background:#241c3a}50%{background:#3b2d63}}
+  #callBar.ringing{animation:ringPulse 1s ease-in-out infinite}
+
+  /* ===== ثيم فخم: ليلي + ذهبي + بنفسجي ===== */
+  :root{--bg:#090912;--card:#14141f;--text:#f4f1ea;--muted:#a29fb3;--green:#e3b65a;--green-dark:#8a6a24;--accent:#a78bfa;--border:#272338}
+  body{font-family:"Tajawal","Segoe UI",Tahoma,Arial,sans-serif;background:radial-gradient(1200px 600px at 80% -10%,rgba(139,92,246,.16),transparent 60%),radial-gradient(900px 500px at 0% 10%,rgba(227,182,90,.10),transparent 55%),var(--bg);background-attachment:fixed}
+  nav,header{background:rgba(14,14,24,.78)!important;backdrop-filter:blur(14px);border-bottom:1px solid rgba(227,182,90,.18)!important}
+  .logo,header h1{background:linear-gradient(90deg,#f6dd9b,#e3b65a,#c08a2b);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-weight:800}
+  .hero{background:radial-gradient(700px 320px at 50% 0%,rgba(167,139,250,.20),transparent 70%)!important}
+  .hero h1 span{background:linear-gradient(90deg,#f6dd9b,#e3b65a,#a78bfa);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .card,.box,.msg,.post,.ip-box,.conv,.frow{background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.02))!important;border:1px solid rgba(255,255,255,.08)!important;box-shadow:0 8px 28px rgba(0,0,0,.35)}
+  .card:hover{border-color:rgba(227,182,90,.55)!important;box-shadow:0 12px 36px rgba(227,182,90,.12)}
+  .msg.mine{border-color:rgba(227,182,90,.55)!important}
+  .btn.fill,button.main,.ip-box button,#newsForm button{background:linear-gradient(135deg,#f6dd9b,#e3b65a 55%,#b9852a)!important;color:#1a1204!important;border:0;box-shadow:0 4px 16px rgba(227,182,90,.28)}
+  .btn.fill:hover,button.main:hover,.ip-box button:hover{filter:brightness(1.08)}
+  .btn{border-color:rgba(227,182,90,.6);color:#e3b65a}
+  h2::after{background:linear-gradient(90deg,#e3b65a,#a78bfa)!important;width:70px!important}
+  .rules li::before{background:linear-gradient(135deg,#f6dd9b,#e3b65a)!important;color:#1a1204!important}
+  .tab.on{color:#e3b65a;border-bottom-color:#e3b65a}
+  .dot.on{background:#3ddc84!important;box-shadow:0 0 10px #3ddc84!important}
+  input:focus,textarea:focus,.accform input:focus{outline:2px solid rgba(227,182,90,.7)!important}
+  #pinBar{background:linear-gradient(90deg,rgba(167,139,250,.22),rgba(227,182,90,.18));border-bottom:1px solid rgba(227,182,90,.3);padding:8px 20px;text-align:center;font-size:.92rem;font-weight:700}
+  #callBar .ghost{margin-inline-start:4px}
 </style>
 </head>
 <body class="locked">
@@ -94,6 +118,7 @@
 <header>
   <h1>💬 شات WandSMP</h1>
   <div id="who" class="hidden"><span>أهلاً <b id="whoName"></b> <span class="bw" id="whoBadge"></span></span></div>
+  <button class="ghost" id="pipBtn" title="نافذة صغيرة تبقى فوق كل البرامج وتطلع فيها المكالمة">🪟 نافذة المكالمات العائمة</button>
   <a href="index.html">← رجوع للموقع</a>
 </header>
 
@@ -108,14 +133,18 @@
 </div>
 <div id="status" class="hidden"></div>
 <div id="err"></div>
-<div id="callBar" class="hidden" style="background:#1d3a24;padding:10px 20px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap">
+<div id="pinBar" class="hidden"></div>
+<div id="callBar" class="hidden" style="background:#241c3a;padding:10px 20px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap">
   <b id="callText"></b>
   <div class="row">
     <button class="main" id="callAccept" style="padding:6px 16px">قبول</button>
+    <button class="ghost hidden" id="camBtn">📹 كاميرا</button>
+    <button class="ghost hidden" id="screenBtn">🖥️ مشاركة الشاشة</button>
     <button class="ghost red" id="callEnd">إنهاء</button>
   </div>
 </div>
 <audio id="remoteAudio" autoplay playsinline></audio>
+<div id="videoBox" class="hidden" style="background:#000;text-align:center"><video id="remoteVideo" autoplay playsinline style="max-width:100%;max-height:45vh"></video><div class="row" style="justify-content:center;padding:6px"><button class="ghost" id="fsBtn">⛶ ملء الشاشة</button></div></div>
 
 <div id="gate">
   <div id="gateLoading">⏳ جاري التحقق من حسابك...</div>
@@ -252,6 +281,7 @@
     <form id="gForm">
       <input id="gText" placeholder="اكتب للقروب..." maxlength="200" autocomplete="off" required>
       <button type="button" class="emo" data-t="gText" title="إيموجي">😀</button>
+      <button type="button" class="emo" id="gImgBtn" title="إرسال صورة">🖼️</button><input type="file" id="gImgFile" accept="image/*" class="hidden">
       <button class="main">إرسال</button>
     </form>
   </div>
@@ -349,6 +379,18 @@
       </form>
     </div>
 
+    <div class="box adm"><h3 class="sec">📌 رسالة مثبتة أعلى الشات</h3><form id="pinForm" class="plain"><input id="pinInput" placeholder="نص الرسالة المثبتة (فاضي = إزالة)" maxlength="200" autocomplete="off"><button class="main">تثبيت</button></form></div>
+    <div class="box adm"><h3 class="sec">🧹 أدوات سريعة</h3><div class="row" style="margin-top:8px"><button class="ghost red" id="btnClearChat">مسح الشات العام كامل</button></div></div>
+
+    <div class="box own">
+      <h3 class="sec">🌐 تعديل IP السيرفر (للمالك فقط)</h3>
+      <form id="ipForm" class="plain">
+        <input id="ipInput" placeholder="مثال: play.example.com" maxlength="80" required autocomplete="off">
+        <button class="main">حفظ الـ IP</button>
+      </form>
+      <div class="notice" style="text-align:right;padding:6px 0 0">يتغير الـ IP في الصفحة الرئيسية مباشرة بدون ما تحتاج GitHub.</div>
+    </div>
+
     <div class="box own">
       <h3 class="sec">✨ صناعة رتب مخصصة (للمالك فقط)</h3>
       <form id="rankDefForm" class="plain">
@@ -386,6 +428,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyCD2_omUv2O9H3B0YEhlQ1KJbKzdBxrIx0",
@@ -528,6 +571,8 @@
     const box = document.createElement("div"); box.className = "msg" + (mine ? " mine" : "");
     const acts = document.createElement("span"); acts.className = "acts";
     const uid = d.uid || d.from;
+    if (k) box.dataset.k = k;
+    if (mine && !d.audio && !d.img && k) acts.append(actBtn("✏️", "", "تعديل الرسالة", () => editMsg(where, k, d.text)));
     if (!mine) {
       acts.append(actBtn("⚑", "", "إبلاغ", () => report(where, uid, d.name, d.text)));
       if (where === "public" && uid) acts.append(actBtn("➕", "fr", "إضافة صديق", () => sendRequest(uid, d.name)));
@@ -537,15 +582,43 @@
       if (uid && uid !== myUid()) acts.append(actBtn("🛡", "", "إجراء إداري", () => modFor(d.name)));
     }
     const n = document.createElement("span"); n.className = "n nm"; n.dataset.uid = uid || ""; n.textContent = d.name;
-    const t = document.createElement("span"); t.className = "t"; t.textContent = timeStr(d.time);
+    const t = document.createElement("span"); t.className = "t"; t.textContent = timeStr(d.time) + (d.edited ? " • معدّلة" : "");
     const b = document.createElement("div"); b.className = "b";
     if (d.audio) {
       const pb = document.createElement("button"); pb.className = "ghost"; pb.textContent = "▶ رسالة صوتية";
       pb.onclick = () => playAudio(k, pb);
       b.appendChild(pb);
+    } else if (d.img && where === "group") {
+      const pb = document.createElement("button"); pb.className = "ghost"; pb.textContent = "🖼️ عرض الصورة";
+      pb.onclick = () => viewGroupImg(k, pb);
+      b.appendChild(pb);
     } else b.textContent = d.text;
     box.append(acts, n, badgeEl(uid), t, b);
     return box;
+  }
+
+  function msgPath(where, k){
+    if (where === "public") return "messages/" + k;
+    if (where === "dm") return "dms/" + curPair + "/" + k;
+    if (where === "group" && cg) return "groupMsgs/" + cg.id + "/" + k;
+    return null;
+  }
+  function editMsg(where, k, old){
+    const p = msgPath(where, k); if (!p) return;
+    const bm = blockedMsg(); if (bm) return showErr(bm);
+    const el = document.querySelector('[data-k="' + k + '"] .b');
+    const cur = el ? el.textContent : old;
+    const nt = prompt("عدّل رسالتك:", cur); if (nt === null) return;
+    const t = nt.trim(); if (!t || t === cur) return;
+    if (t.length > 200) return showErr("الرسالة طويلة (200 حرف)");
+    const bad = isBad(t); if (bad) return showErr(bad);
+    db.ref(p).update({ text: t, edited: true }).catch(() => showErr("ما انعدلت الرسالة (تأكد إنك نشرت القواعد الجديدة)"));
+  }
+  function applyEdit(box, snap){
+    const d = snap.val(); if (!d || d.audio || d.img) return;
+    const el = box.querySelector('[data-k="' + snap.key + '"]'); if (!el) return;
+    const b = el.querySelector(".b"); if (b) b.textContent = d.text;
+    const t = el.querySelector(".t"); if (t && d.edited && !t.textContent.includes("معدّلة")) t.textContent += " • معدّلة";
   }
 
   /* ---------- التبويبات ---------- */
@@ -570,7 +643,7 @@
 
   function listen(r, cb){ r.on("value", cb, () => {}); listeners.push(() => r.off("value", cb)); }
   function detach(){
-    listeners.forEach(f => f()); listeners = []; attached = false;
+    listeners.forEach(f => f()); listeners = []; attached = false; pushDone = false;
     dmOn = false; blocked = {}; inbox = {}; friends = {}; requests = {}; groupsMine = {}; grInv = {}; myTk = {}; tkAll = {}; clearGroupListeners(); updateBadges(); closeGroup(); renderGroups(); closeTicket(); renderTickets(); myBan = null; myMute = null;
     updateStatus();
   }
@@ -578,7 +651,7 @@
   function afterAuth(){
     const u = auth.currentUser;
     if (!u || !u.displayName || attached) return;
-    attached = true;
+    attached = true; setupPush();
     db.ref("usernames/" + key(u.displayName)).set(u.uid).catch(() => {});
     db.ref("profiles/" + u.uid).set({ name: u.displayName }).catch(() => {});
     listen(db.ref("settings/" + u.uid + "/dm"), s => { dmOn = s.val() === true; $("dmToggle").checked = dmOn; dmUi(); });
@@ -683,6 +756,8 @@
     delete pubData[snap.key]; const i = pubKeys.indexOf(snap.key); if (i > -1) pubKeys.splice(i, 1);
     renderPublic();
   });
+
+  db.ref("messages").limitToLast(100).on("child_changed", snap => { if (pubData[snap.key]) pubData[snap.key] = snap.val(); applyEdit($("msgs"), snap); });
 
   /* ---------- المنشورات ---------- */
   const TYPE = { sell: ["🟢 بيع", "t-sell"], buy: ["🔵 شراء", "t-buy"], other: ["⚪ إعلان", "t-other"] };
@@ -843,7 +918,7 @@
     }
   }
 
-  let other = null, convoRef = null, convoCb = null, lastDm = 0;
+  let other = null, convoRef = null, convoCb = null, convoCh = null, lastDm = 0;
   const pairId = (a, b) => [a, b].sort().join("_");
 
   function refreshBlockBtn(){
@@ -867,11 +942,13 @@
       box.appendChild(makeMsg(d, "dm", d.from === myUid(), snap.key));
       applyBadges(); box.scrollTop = box.scrollHeight;
     }, ex => showErr("ما قدرت أقرأ المحادثة: " + ex.code, true));
+    convoCh = convoRef.on("child_changed", snap => applyEdit($("dmMsgs"), snap));
   }
   function closeConvo(){
     if (convoRef && convoCb) convoRef.off("child_added", convoCb);
+    if (convoRef && convoCh) convoRef.off("child_changed", convoCh);
     if (rec) stopRec(true);
-    convoRef = convoCb = other = null;
+    convoRef = convoCb = convoCh = other = null;
     $("convo").classList.add("hidden");
   }
   $("back").onclick = closeConvo;
@@ -1042,6 +1119,43 @@
       if (role === "none") await db.ref("roles/" + uid).remove(); else await db.ref("roles/" + uid).set(role);
       $("roleForm").reset(); showErr("انحفظت الرتبة ✓");
     } catch (ex) { showErr("ما انحفظت: " + ex.code); }
+  });
+
+  db.ref("config/pinned").on("value", s => {
+    const v = s.val(), bar = $("pinBar");
+    bar.textContent = v ? "📌 " + v : ""; bar.classList.toggle("hidden", !v);
+    const i = $("pinInput"); if (i && document.activeElement !== i) i.value = v || "";
+  }, () => {});
+  $("pinForm").addEventListener("submit", e => {
+    e.preventDefault();
+    if (!isAdmin()) return showErr("التثبيت للإدارة بس");
+    const t = $("pinInput").value.trim(), r = db.ref("config/pinned");
+    (t ? r.set(t) : r.remove()).then(() => showErr(t ? "تم التثبيت ✓" : "انشالت الرسالة المثبتة ✓")).catch(() => showErr("ما انحفظ (انشر القواعد الجديدة)"));
+  });
+  $("btnClearChat").onclick = async () => {
+    if (!isAdmin() || !confirm("تمسح كل رسائل الشات العام؟")) return;
+    try {
+      const sn = await db.ref("messages").limitToLast(500).once("value"), up = {};
+      sn.forEach(c => { up["messages/" + c.key] = null; });
+      await db.ref().update(up); showErr("انمسح الشات ✓");
+    } catch (ex) { showErr("ما انمسح: " + ex.code); }
+  };
+
+  /* ---------- تعديل IP السيرفر (للمالك) ---------- */
+  db.ref("config/ip").on("value", s => {
+    const v = s.val();
+    const inp = $("ipInput");
+    if (typeof v === "string" && inp && document.activeElement !== inp) inp.value = v;
+  }, () => {});
+  $("ipForm").addEventListener("submit", e => {
+    e.preventDefault();
+    if (!isOwner()) return showErr("تعديل الـ IP للمالك بس");
+    const ip = $("ipInput").value.trim();
+    if (ip.length < 3) return showErr("اكتب IP صحيح");
+    if (/\s|https?:\/\//i.test(ip)) return showErr("اكتب الـ IP بدون مسافات وبدون http://");
+    db.ref("config/ip").set(ip)
+      .then(() => showErr("انحفظ الـ IP الجديد ✓ (يتغير في الصفحة الرئيسية مباشرة)"))
+      .catch(ex => showErr("ما انحفظ: " + (ex && ex.code || ex) + " — تأكد إنك نشرت القواعد الجديدة", true));
   });
 
   /* ---------- الرتب المخصصة (الشكل) ---------- */
@@ -1307,7 +1421,7 @@
   }
 
   /* ---------- القروبات ---------- */
-  let cg = null, gMsgRef = null, gMsgCb = null, gMsgRm = null, gMemRef = null, gMemCb = null, lastG = 0, gMembersData = {};
+  let gMsgCh = null, cg = null, gMsgRef = null, gMsgCb = null, gMsgRm = null, gMemRef = null, gMemCb = null, lastG = 0, gMembersData = {};
 
   function renderGroups(){
     const il = $("grInvList"), gl = $("grList"); if (!il || !gl) return;
@@ -1369,17 +1483,18 @@
       const d = snap.val(); if (d.uid !== myUid() && blocked[d.uid]) return;
       const box = makeMsg(d, "group", d.uid === myUid(), snap.key); box.dataset.k = snap.key;
       if (d.uid === myUid() || (cg && cg.owner === myUid()))
-        box.querySelector(".acts").append(actBtn("🗑", "", "حذف", () => removeItem("groupMsgs/" + gid, snap.key)));
+        box.querySelector(".acts").append(actBtn("🗑", "", "حذف", () => delGroupMsg(gid, snap.key, d.img)));
       $("gMsgs").appendChild(box); applyBadges(); $("gMsgs").scrollTop = $("gMsgs").scrollHeight;
     }, () => {});
     gMsgRm = gMsgRef.on("child_removed", snap => {
       const el = $("gMsgs").querySelector('[data-k="' + snap.key + '"]'); if (el) el.remove();
     });
+    gMsgCh = gMsgRef.on("child_changed", snap => applyEdit($("gMsgs"), snap));
   }
   function closeGroup(){
-    if (gMsgRef) { if (gMsgCb) gMsgRef.off("child_added", gMsgCb); if (gMsgRm) gMsgRef.off("child_removed", gMsgRm); }
+    if (gMsgRef) { if (gMsgCb) gMsgRef.off("child_added", gMsgCb); if (gMsgRm) gMsgRef.off("child_removed", gMsgRm); if (gMsgCh) gMsgRef.off("child_changed", gMsgCh); }
     if (gMemRef && gMemCb) gMemRef.off("value", gMemCb);
-    gMsgRef = gMsgCb = gMsgRm = gMemRef = gMemCb = cg = null;
+    gMsgRef = gMsgCb = gMsgRm = gMsgCh = gMemRef = gMemCb = cg = null;
     const v = $("gview"); if (v) v.classList.add("hidden");
   }
   function goneGroup(){
@@ -1422,7 +1537,7 @@
   $("gDel").onclick = async () => {
     if (!cg || cg.owner !== myUid() || !confirm("تحذف القروب وكل رسائله نهائي؟")) return;
     const id = cg.id; closeGroup();
-    try { await db.ref("groupMsgs/" + id).remove(); await db.ref("groups/" + id).remove(); await db.ref("myGroups/" + myUid() + "/" + id).remove(); }
+    try { await db.ref("groupMsgs/" + id).remove(); await db.ref("groupImgs/" + id).remove(); await db.ref("groups/" + id).remove(); await db.ref("myGroups/" + myUid() + "/" + id).remove(); }
     catch (ex) { showErr("ما انحذف القروب"); }
   };
   $("gForm").addEventListener("submit", e => {
@@ -1437,6 +1552,187 @@
     $("gText").value = "";
   });
 
+  /* ---------- صور القروبات ---------- */
+  const imgCache = {};
+  function compressImage(file, maxDim, cb){
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const sc = Math.min(1, maxDim / Math.max(img.width, img.height));
+      const w = Math.round(img.width * sc), h = Math.round(img.height * sc);
+      const c = document.createElement("canvas"); c.width = w; c.height = h;
+      c.getContext("2d").drawImage(img, 0, 0, w, h);
+      let q = 0.8, data = c.toDataURL("image/jpeg", q);
+      while (data.length > 180000 && q > 0.3) { q -= 0.1; data = c.toDataURL("image/jpeg", q); }
+      cb(data.length > 200000 ? null : data);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); cb(null); };
+    img.src = url;
+  }
+  $("gImgBtn").onclick = () => { if (cg) $("gImgFile").click(); };
+  $("gImgFile").onchange = e => {
+    const f = e.target.files[0]; e.target.value = "";
+    if (!f || !cg) return;
+    if (!/^image\//.test(f.type)) return showErr("اختر صورة بس");
+    const bm = blockedMsg(); if (bm) return showErr(bm);
+    if (Date.now() - lastG < COOLDOWN_MS) return showErr("استنى شوي قبل الرسالة الجاية");
+    const gid = cg.id, me = myUid();
+    compressImage(f, 1024, data => {
+      if (!data) return showErr("ما قدرت أجهّز الصورة، جرب صورة ثانية");
+      lastG = Date.now();
+      const id = db.ref("groupMsgs/" + gid).push().key;
+      db.ref().update({
+        ["groupMsgs/" + gid + "/" + id]: { uid: me, name: myName(), text: "📷 صورة", img: true, time: TS },
+        ["groupImgs/" + gid + "/" + id]: data
+      }).catch(() => showErr("ما انرسلت الصورة (يمكن انطردت أو أنت مكتوم، أو ما نشرت القواعد الجديدة)", true));
+    });
+  };
+  async function viewGroupImg(k, btn){
+    try {
+      let src = imgCache[k];
+      if (!src) { if (!cg) return; const sn = await db.ref("groupImgs/" + cg.id + "/" + k).once("value"); src = sn.val(); if (src) imgCache[k] = src; }
+      if (!src) return showErr("ما لقيت الصورة");
+      const im = document.createElement("img"); im.src = src;
+      im.style.cssText = "max-width:100%;max-height:320px;border-radius:10px;display:block;cursor:zoom-in";
+      im.onclick = () => { const z = im.dataset.z === "1"; im.dataset.z = z ? "" : "1"; im.style.maxHeight = z ? "320px" : "none"; im.style.cursor = z ? "zoom-in" : "zoom-out"; };
+      btn.replaceWith(im);
+    } catch (ex) { showErr("ما قدرت أحمّل الصورة: " + ex.code); }
+  }
+  function delGroupMsg(gid, k, isImg){
+    if (!confirm("تحذف هذا؟")) return;
+    const up = { ["groupMsgs/" + gid + "/" + k]: null };
+    if (isImg) up["groupImgs/" + gid + "/" + k] = null;
+    db.ref().update(up).catch(() => showErr("ما انحذف (ما عندك صلاحية)"));
+  }
+
+  /* ---------- نغمة الرنين (تتولّد بالكود، ما تحتاج ملف صوت) ---------- */
+  let audioCtx = null, ringInt = null, notifFor = null, activeNotif = null;
+
+  function getAudioCtx(){
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === "suspended") audioCtx.resume();
+    } catch (e) {}
+    return audioCtx;
+  }
+  // المتصفح يمنع الصوت قبل أول لمسة من المستخدم، فنفعّل الصوت ونطلب إذن الإشعارات عند أول ضغطة
+  // مفتاح الإشعارات: Firebase ← Project settings ← Cloud Messaging ← Web Push certificates ← Generate key pair
+  const VAPID_KEY = "ضع_مفتاح_VAPID_هنا";
+  let pushDone = false;
+  async function setupPush(){
+    try {
+      if (pushDone || !myUid() || !("serviceWorker" in navigator) || !("Notification" in window) || Notification.permission !== "granted") return;
+      if (!VAPID_KEY || VAPID_KEY.startsWith("ضع")) return;
+      if (!(await firebase.messaging.isSupported())) return;
+      const reg = await navigator.serviceWorker.register("firebase-messaging-sw.js");
+      const token = await firebase.messaging().getToken({ vapidKey: VAPID_KEY, serviceWorkerRegistration: reg });
+      if (token) { await db.ref("fcmTokens/" + myUid() + "/" + token).set(true); pushDone = true; }
+    } catch (e) {}
+  }
+  function unlockAudio(){
+    getAudioCtx();
+    try { if ("Notification" in window && Notification.permission === "default") Promise.resolve(Notification.requestPermission()).then(setupPush); else setupPush(); } catch (e) {}
+  }
+  document.addEventListener("click", unlockAudio);
+  document.addEventListener("touchstart", unlockAudio, { passive: true });
+
+  function ringBeep(){
+    const c = getAudioCtx(); if (!c) return;
+    const t0 = c.currentTime;
+    // نغمتين متتاليتين مثل رنين الجوال
+    [[0, 740], [0.28, 988], [0.56, 740], [0.84, 988]].forEach(([off, freq]) => {
+      const o = c.createOscillator(), g = c.createGain();
+      o.type = "sine"; o.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, t0 + off);
+      g.gain.exponentialRampToValueAtTime(0.3, t0 + off + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + off + 0.24);
+      o.connect(g); g.connect(c.destination);
+      o.start(t0 + off); o.stop(t0 + off + 0.26);
+    });
+  }
+  function ringStart(){
+    if (ringInt) return;
+    ringBeep();
+    ringInt = setInterval(ringBeep, 2200);
+    try { if (navigator.vibrate) navigator.vibrate([500, 250, 500, 250, 500]); } catch (e) {}
+  }
+  function ringStop(){
+    if (ringInt) { clearInterval(ringInt); ringInt = null; }
+    try { if (navigator.vibrate) navigator.vibrate(0); } catch (e) {}
+    if (activeNotif) { try { activeNotif.close(); } catch (e) {} activeNotif = null; }
+    notifFor = null;
+  }
+  function notifyIncoming(name){
+    // إشعار من المتصفح لو الصفحة بالخلفية (يشتغل طالما التبويب مفتوح)
+    if (!document.hidden || notifFor === name) return;
+    notifFor = name;
+    try {
+      if ("Notification" in window && Notification.permission === "granted") {
+        activeNotif = new Notification("📞 " + name + " يتصل فيك", { body: "افتح الشات عشان ترد", tag: "wand-call", requireInteraction: true });
+        activeNotif.onclick = () => { window.focus(); activeNotif.close(); };
+      }
+    } catch (e) {}
+  }
+
+  /* ---------- نافذة المكالمات العائمة (كروم كمبيوتر): تبقى فوق كل البرامج ---------- */
+  let pipWin = null;
+  async function openPip(){
+    if (pipWin) return;
+    try {
+      pipWin = await documentPictureInPicture.requestWindow({ width: 320, height: 170 });
+      const d = pipWin.document;
+      d.documentElement.dir = "rtl";
+      d.body.style.cssText = "margin:0;background:#241c3a;color:#fff;font-family:Tahoma,Arial,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;height:100vh;text-align:center";
+      d.body.innerHTML = '<div id="t" style="font-size:18px;font-weight:700;padding:0 10px"></div><div id="b" style="display:flex;gap:10px"></div>';
+      pipWin.addEventListener("pagehide", () => { pipWin = null; });
+      pipUi();
+    } catch (e) { pipWin = null; showErr("ما قدرت أفتح النافذة العائمة"); }
+  }
+  function pipUi(){
+    if (!pipWin) return;
+    const d = pipWin.document, t = d.getElementById("t"), b = d.getElementById("b"); if (!t || !b) return;
+    t.textContent = $("callText").textContent || "🟢 بانتظار مكالمة...";
+    b.innerHTML = "";
+    const mk = (txt, bg, fn) => { const x = d.createElement("button"); x.textContent = txt; x.style.cssText = "border:0;border-radius:10px;padding:10px 20px;font-size:16px;font-weight:700;cursor:pointer;color:#fff;background:" + bg; x.onclick = fn; b.appendChild(x); };
+    if (callState === "ringing") { mk("✅ قبول", "#2e9e5b", acceptCall); mk("❌ رفض", "#c0392b", declineCall); }
+    else if (callState !== "idle") mk("إنهاء", "#c0392b", () => cleanupCall());
+  }
+  if (!("documentPictureInPicture" in window)) $("pipBtn").classList.add("hidden"); else $("pipBtn").onclick = openPip;
+
+  /* ---------- الكاميرا ومشاركة الشاشة ---------- */
+  let vStream = null, vCall = null, vKind = null;
+  function updateVidBtns(){
+    $("camBtn").textContent = vStream && vKind === "cam" ? "⏹ إيقاف الكاميرا" : "📹 كاميرا";
+    $("screenBtn").textContent = vStream && vKind === "screen" ? "⏹ إيقاف المشاركة" : "🖥️ مشاركة الشاشة";
+  }
+  function showRemoteVideo(rs){ const v = $("remoteVideo"); v.srcObject = rs; $("videoBox").classList.remove("hidden"); v.play().catch(() => {}); }
+  function hideRemoteVideo(){ $("remoteVideo").srcObject = null; $("videoBox").classList.add("hidden"); }
+  function stopVideo(){
+    if (vStream) vStream.getTracks().forEach(t => t.stop());
+    try { if (vCall) vCall.close(); } catch (e) {}
+    vStream = vCall = vKind = null; updateVidBtns();
+  }
+  async function startVideo(kind){
+    if (vStream) return stopVideo();
+    if (callState !== "live" || !activeCall || !peer) return showErr("ابدأ المكالمة أول");
+    try {
+      vStream = kind === "screen" ? await navigator.mediaDevices.getDisplayMedia({ video: true }) : await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
+    } catch (e) { vStream = null; return showErr(kind === "screen" ? "ما قدرت أشارك الشاشة (أغلب الجوالات ما تدعمها)" : "ما قدرت أفتح الكاميرا، اسمح للمتصفح"); }
+    vKind = kind; vCall = peer.call(activeCall.peer, vStream, { metadata: { type: "video" } });
+    vStream.getVideoTracks()[0].onended = () => stopVideo();
+    updateVidBtns();
+  }
+  function incomingMedia(call){
+    if (call.metadata && call.metadata.type === "video") {
+      call.answer();
+      call.on("stream", showRemoteVideo);
+      call.on("close", hideRemoteVideo);
+    } else { call.answer(localStream); setupCall(call); }
+  }
+  $("camBtn").onclick = () => startVideo("cam");
+  $("screenBtn").onclick = () => startVideo("screen");
+  $("fsBtn").onclick = () => { const v = $("remoteVideo"); if (v.requestFullscreen) v.requestFullscreen(); else if (v.webkitEnterFullscreen) v.webkitEnterFullscreen(); };
+
   /* ---------- المكالمات الصوتية بين الأصدقاء ---------- */
   let peer = null, activeCall = null, localStream = null, callTimer = null, goneTimer = null, callRefOff = null;
   let callState = "idle", callWith = null, incoming = null, ringTimer = null;
@@ -1445,16 +1741,21 @@
   function callUi(){
     const show = callState !== "idle";
     $("callBar").classList.toggle("hidden", !show);
+    $("callBar").classList.toggle("ringing", callState === "ringing");
     $("callAccept").classList.toggle("hidden", callState !== "ringing");
     $("callEnd").textContent = callState === "ringing" ? "رفض" : "إنهاء";
+    $("camBtn").classList.toggle("hidden", callState !== "live"); $("screenBtn").classList.toggle("hidden", callState !== "live");
     let t = "";
     if (callState === "ringing" && incoming) t = "📞 " + incoming.name + " يتصل فيك";
     else if (callState === "calling" && callWith) t = "📞 جاري الاتصال بـ " + callWith.name + "...";
     else if (callState === "live" && callWith) t = "🔊 متصل مع " + callWith.name;
     $("callText").textContent = t;
+    if (callState === "ringing" && incoming) { ringStart(); notifyIncoming(incoming.name); } else ringStop();
+    pipUi();
   }
 
   function cleanupCall(msg){
+    stopVideo(); hideRemoteVideo();
     const wasCalling = callState === "calling", who = callWith;
     callState = "idle";
     clearTimeout(callTimer); clearTimeout(goneTimer); clearTimeout(ringTimer);
@@ -1495,7 +1796,7 @@
     localStream = stream; callWith = { uid, name }; callState = "calling"; callUi();
     peer = new Peer();
     peer.on("error", () => cleanupCall("ما قدرت أتصل (الشبكة ما تسمح). جرب Discord"));
-    peer.on("call", call => { call.answer(localStream); setupCall(call); });
+    peer.on("call", incomingMedia);
     peer.on("open", id => {
       db.ref("calls/" + uid + "/" + myUid()).set({ name: myName(), peer: id, time: TS })
         .catch(() => cleanupCall("ما انرسل الاتصال (لازم تكونون أصدقاء، وتأكد إنك حدّثت القواعد Rules)"));
@@ -1514,10 +1815,12 @@
   async function acceptCall(){
     if (callState !== "ringing" || !incoming) return;
     const inc = incoming;
+    ringStop();
     const stream = await getMic(); if (!stream) return declineCall();
     localStream = stream; callWith = { uid: inc.from, name: inc.name }; callState = "calling"; incoming = null; callUi();
     peer = new Peer();
     peer.on("error", () => cleanupCall("ما قدرت أتصل (الشبكة ما تسمح). جرب Discord"));
+    peer.on("call", incomingMedia);
     peer.on("open", () => {
       setupCall(peer.call(inc.peer, localStream));
       db.ref("calls/" + myUid() + "/" + inc.from).remove().catch(() => {});

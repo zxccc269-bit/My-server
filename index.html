@@ -6,6 +6,7 @@
 <title>WandSMP | سيرفر ماينكرافت</title>
 <meta name="description" content="سيرفر ماينكرافت عربي - انضم الآن والعب مع أصدقائك">
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap');
   :root{
     --bg:#12161c; --card:#1b212b; --text:#e8edf4; --muted:#9aa6b6;
     --green:#5cb85c; --green-dark:#3d8b3d; --accent:#f5b942; --border:#2a3240;
@@ -82,6 +83,27 @@
   .accmsg{margin-top:10px;text-align:center;min-height:22px;font-size:.9rem}
 
   @media(max-width:600px){nav ul{display:none}}
+
+  /* ===== ثيم فخم: ليلي + ذهبي + بنفسجي ===== */
+  :root{--bg:#090912;--card:#14141f;--text:#f4f1ea;--muted:#a29fb3;--green:#e3b65a;--green-dark:#8a6a24;--accent:#a78bfa;--border:#272338}
+  body{font-family:"Tajawal","Segoe UI",Tahoma,Arial,sans-serif;background:radial-gradient(1200px 600px at 80% -10%,rgba(139,92,246,.16),transparent 60%),radial-gradient(900px 500px at 0% 10%,rgba(227,182,90,.10),transparent 55%),var(--bg);background-attachment:fixed}
+  nav,header{background:rgba(14,14,24,.78)!important;backdrop-filter:blur(14px);border-bottom:1px solid rgba(227,182,90,.18)!important}
+  .logo,header h1{background:linear-gradient(90deg,#f6dd9b,#e3b65a,#c08a2b);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-weight:800}
+  .hero{background:radial-gradient(700px 320px at 50% 0%,rgba(167,139,250,.20),transparent 70%)!important}
+  .hero h1 span{background:linear-gradient(90deg,#f6dd9b,#e3b65a,#a78bfa);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .card,.box,.msg,.post,.ip-box,.conv,.frow{background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.02))!important;border:1px solid rgba(255,255,255,.08)!important;box-shadow:0 8px 28px rgba(0,0,0,.35)}
+  .card:hover{border-color:rgba(227,182,90,.55)!important;box-shadow:0 12px 36px rgba(227,182,90,.12)}
+  .msg.mine{border-color:rgba(227,182,90,.55)!important}
+  .btn.fill,button.main,.ip-box button,#newsForm button{background:linear-gradient(135deg,#f6dd9b,#e3b65a 55%,#b9852a)!important;color:#1a1204!important;border:0;box-shadow:0 4px 16px rgba(227,182,90,.28)}
+  .btn.fill:hover,button.main:hover,.ip-box button:hover{filter:brightness(1.08)}
+  .btn{border-color:rgba(227,182,90,.6);color:#e3b65a}
+  h2::after{background:linear-gradient(90deg,#e3b65a,#a78bfa)!important;width:70px!important}
+  .rules li::before{background:linear-gradient(135deg,#f6dd9b,#e3b65a)!important;color:#1a1204!important}
+  .tab.on{color:#e3b65a;border-bottom-color:#e3b65a}
+  .dot.on{background:#3ddc84!important;box-shadow:0 0 10px #3ddc84!important}
+  input:focus,textarea:focus,.accform input:focus{outline:2px solid rgba(227,182,90,.7)!important}
+  #pinBar{background:linear-gradient(90deg,rgba(167,139,250,.22),rgba(227,182,90,.18));border-bottom:1px solid rgba(227,182,90,.3);padding:8px 20px;text-align:center;font-size:.92rem;font-weight:700}
+  #callBar .ghost{margin-inline-start:4px}
 </style>
 </head>
 <body>
@@ -193,8 +215,8 @@
   <div class="wrap">
     <h2>كيف تدخل السيرفر؟</h2>
     <div class="join">
-      <div class="card"><h3>Java Edition</h3><p>العنوان:</p><b>wandSMP.asrv.qzz.io</b></div>
-      <div class="card"><h3>Bedrock Edition</h3><p>العنوان:</p><b>wandSMP.asrv.qzz.io</b><p>المنفذ: <b>19132</b></p></div>
+      <div class="card"><h3>Java Edition</h3><p>العنوان:</p><b class="ipTxt">wandSMP.asrv.qzz.io</b></div>
+      <div class="card"><h3>Bedrock Edition</h3><p>العنوان:</p><b class="ipTxt">wandSMP.asrv.qzz.io</b><p>المنفذ: <b>19132</b></p></div>
     </div>
     <p style="text-align:center;color:var(--muted);margin-top:18px">الإصدار المدعوم: 1.21.x</p>
   </div>
@@ -222,11 +244,15 @@
 </footer>
 
 <script>
-  // ====== عدّل هنا ======
-  const SERVER_IP = "wandSMP.asrv.qzz.io";
-  // ======================
+  // الـ IP الافتراضي (يُستخدم لو ما انحفظ IP من لوحة الإدارة).
+  // لتغيير الـ IP بعد كذا: ادخل الشات ← تبويب الإدارة ← "تعديل IP السيرفر" (للمالك).
+  let SERVER_IP = "wandSMP.asrv.qzz.io";
 
-  document.getElementById("ip").textContent = SERVER_IP;
+  function applyIp() {
+    document.getElementById("ip").textContent = SERVER_IP;
+    document.querySelectorAll(".ipTxt").forEach(e => e.textContent = SERVER_IP);
+  }
+  applyIp();
 
   document.getElementById("copyBtn").addEventListener("click", async (e) => {
     try { await navigator.clipboard.writeText(SERVER_IP); } catch {}
@@ -235,22 +261,27 @@
   });
 
   // فحص حالة السيرفر (واجهة مجانية mcsrvstat)
-  fetch("https://api.mcsrvstat.us/3/" + SERVER_IP)
-    .then(r => r.json())
-    .then(d => {
-      const dot = document.getElementById("dot");
-      const t = document.getElementById("statusText");
-      if (d.online) {
-        dot.className = "dot on";
-        t.textContent = "السيرفر شغّال — " + d.players.online + " / " + d.players.max + " لاعب";
-      } else {
-        dot.className = "dot off";
-        t.textContent = "السيرفر مغلق حالياً";
-      }
-    })
-    .catch(() => {
-      document.getElementById("statusText").textContent = "تعذّر فحص الحالة";
-    });
+  function checkStatus() {
+    const dot = document.getElementById("dot");
+    const t = document.getElementById("statusText");
+    t.textContent = "جارٍ فحص حالة السيرفر...";
+    dot.className = "dot";
+    fetch("https://api.mcsrvstat.us/3/" + SERVER_IP)
+      .then(r => r.json())
+      .then(d => {
+        if (d.online) {
+          dot.className = "dot on";
+          t.textContent = "السيرفر شغّال — " + d.players.online + " / " + d.players.max + " لاعب";
+        } else {
+          dot.className = "dot off";
+          t.textContent = "السيرفر مغلق حالياً";
+        }
+      })
+      .catch(() => {
+        t.textContent = "تعذّر فحص الحالة";
+      });
+  }
+  checkStatus();
 </script>
 
 <!-- أخبار الإدارة من Firebase -->
@@ -266,6 +297,17 @@
       projectId: "wandsmp-98824",
       appId: "1:375935441371:web:38ad3f4501f91d452a6ffe"
     });
+
+    // قراءة الـ IP من Firebase (يتغير من لوحة الإدارة في الشات)
+    firebase.database().ref("config/ip").on("value", snap => {
+      const ip = snap.val();
+      if (typeof ip === "string" && ip.trim() && ip.trim() !== SERVER_IP) {
+        SERVER_IP = ip.trim();
+        applyIp();
+        checkStatus();
+      }
+    }, () => {});
+
     firebase.database().ref("announcements").limitToLast(10).on("value", snap => {
       const box = document.getElementById("newsList");
       box.innerHTML = "";

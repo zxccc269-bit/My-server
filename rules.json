@@ -1,0 +1,316 @@
+{
+  "rules": {
+    "config": {
+      ".read": true,
+      "ip": {
+        ".write": "auth != null && root.child('roles').child(auth.uid).val() === 'owner'",
+        ".validate": "newData.isString() && newData.val().length >= 3 && newData.val().length <= 80"
+      },
+      "pinned": {
+        ".write": "auth != null && (root.child('roles').child(auth.uid).val() === 'admin' || root.child('roles').child(auth.uid).val() === 'owner')",
+        ".validate": "newData.isString() && newData.val().length <= 200"
+      }
+    },
+    "roles": {
+      ".read": true,
+      "$uid": {
+        ".write": "auth != null && root.child('roles').child(auth.uid).val() === 'owner'",
+        ".validate": "newData.val() === 'mod' || newData.val() === 'admin' || newData.val() === 'owner'"
+      }
+    },
+    "rankDefs": {
+      ".read": true,
+      "$id": {
+        ".write": "auth != null && root.child('roles').child(auth.uid).val() === 'owner'",
+        ".validate": "newData.hasChildren(['label','color','fx']) && newData.child('label').isString() && newData.child('label').val().length <= 16 && newData.child('color').isString() && newData.child('color').val().matches(/^#[0-9a-fA-F]{6}$/) && (newData.child('fx').val() === 'none' || newData.child('fx').val() === 'glow' || newData.child('fx').val() === 'shine') && (!newData.child('icon').exists() || (newData.child('icon').isString() && newData.child('icon').val().length <= 4))"
+      }
+    },
+    "rankOf": {
+      ".read": true,
+      "$uid": {
+        ".write": "auth != null && (root.child('roles').child(auth.uid).val() === 'admin' || root.child('roles').child(auth.uid).val() === 'owner')",
+        ".validate": "newData.isString() && root.child('rankDefs').child(newData.val()).exists()"
+      }
+    },
+    "bans": {
+      ".read": "auth != null && (root.child('roles').child(auth.uid).val() === 'mod' || root.child('roles').child(auth.uid).val() === 'admin' || root.child('roles').child(auth.uid).val() === 'owner')",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && (root.child('roles').child(auth.uid).val() === 'owner' || ((root.child('roles').child(auth.uid).val() === 'admin') && !root.child('roles').child($uid).exists()))",
+        ".validate": "newData.hasChildren(['name','time','byName'])"
+      }
+    },
+    "mutes": {
+      ".read": "auth != null && (root.child('roles').child(auth.uid).val() === 'mod' || root.child('roles').child(auth.uid).val() === 'admin' || root.child('roles').child(auth.uid).val() === 'owner')",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && (root.child('roles').child(auth.uid).val() === 'owner' || ((root.child('roles').child(auth.uid).val() === 'mod' || root.child('roles').child(auth.uid).val() === 'admin') && !root.child('roles').child($uid).exists()))",
+        ".validate": "newData.hasChildren(['name','until','time','byName']) && newData.child('until').isNumber()"
+      }
+    },
+    "messages": {
+      ".read": true,
+      ".indexOn": [
+        "uid"
+      ],
+      "$id": {
+        ".write": "auth != null && ((!data.exists() && (!root.child('bans').child(auth.uid).exists() || (root.child('bans').child(auth.uid).child('until').exists() && root.child('bans').child(auth.uid).child('until').val() <= now)) && (!root.child('mutes').child(auth.uid).exists() || root.child('mutes').child(auth.uid).child('until').val() <= now)) || (!newData.exists() && (root.child('roles').child(auth.uid).val() === 'mod' || root.child('roles').child(auth.uid).val() === 'admin' || root.child('roles').child(auth.uid).val() === 'owner')) || (data.exists() && newData.exists() && data.child('uid').val() === auth.uid && newData.child('uid').val() === auth.uid && newData.child('time').val() === data.child('time').val() && (!root.child('mutes').child(auth.uid).exists() || root.child('mutes').child(auth.uid).child('until').val() <= now) && (!root.child('bans').child(auth.uid).exists() || (root.child('bans').child(auth.uid).child('until').exists() && root.child('bans').child(auth.uid).child('until').val() <= now))))",
+        ".validate": "newData.hasChildren(['name','text','time','uid']) && newData.child('uid').val() === auth.uid && newData.child('name').val() === root.child('profiles').child(auth.uid).child('name').val() && newData.child('name').isString() && newData.child('name').val().length <= 20 && newData.child('text').isString() && newData.child('text').val().length <= 200 && newData.child('time').isNumber()"
+      }
+    },
+    "posts": {
+      ".read": true,
+      ".indexOn": [
+        "uid"
+      ],
+      "$id": {
+        ".write": "auth != null && ((!data.exists() && (!root.child('bans').child(auth.uid).exists() || (root.child('bans').child(auth.uid).child('until').exists() && root.child('bans').child(auth.uid).child('until').val() <= now)) && (!root.child('mutes').child(auth.uid).exists() || root.child('mutes').child(auth.uid).child('until').val() <= now) && (!root.child('lastPost').child(auth.uid).exists() || root.child('lastPost').child(auth.uid).val() < now - 60000)) || (!newData.exists() && (data.child('uid').val() === auth.uid || root.child('roles').child(auth.uid).val() === 'mod' || root.child('roles').child(auth.uid).val() === 'admin' || root.child('roles').child(auth.uid).val() === 'owner')))",
+        ".validate": "newData.hasChildren(['name','text','time','uid','type']) && newData.child('uid').val() === auth.uid && newData.child('name').val() === root.child('profiles').child(auth.uid).child('name').val() && newData.child('name').isString() && newData.child('name').val().length <= 20 && newData.child('text').isString() && newData.child('text').val().length >= 3 && newData.child('text').val().length <= 300 && (newData.child('type').val() === 'sell' || newData.child('type').val() === 'buy' || newData.child('type').val() === 'other') && newData.child('time').isNumber()"
+      }
+    },
+    "lastPost": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.val() === now"
+      }
+    },
+    "announcements": {
+      ".read": true,
+      "$id": {
+        ".write": "auth != null && (root.child('roles').child(auth.uid).val() === 'admin' || root.child('roles').child(auth.uid).val() === 'owner')",
+        ".validate": "newData.hasChildren(['title','text','time','byName']) && newData.child('title').isString() && newData.child('title').val().length <= 80 && newData.child('text').isString() && newData.child('text').val().length <= 1000 && newData.child('time').isNumber()"
+      }
+    },
+    "usernames": {
+      "$n": {
+        ".read": true,
+        ".write": "auth != null && !data.exists()",
+        ".validate": "newData.val() === auth.uid"
+      }
+    },
+    "settings": {
+      "$uid": {
+        ".read": true,
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "blocks": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "requests": {
+      "$to": {
+        ".read": "auth != null && auth.uid === $to",
+        "$from": {
+          ".write": "auth != null && ((auth.uid === $from && !data.exists() && root.child('profiles').child($to).exists() && !root.child('blocks').child($to).child(auth.uid).exists()) || auth.uid === $to)",
+          ".validate": "newData.hasChildren(['name','time'])"
+        }
+      }
+    },
+    "friends": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$other": {
+          ".write": "auth != null && (auth.uid === $uid || (auth.uid === $other && (!newData.exists() || root.child('requests').child(auth.uid).child($uid).exists())))",
+          ".validate": "newData.hasChildren(['name','time'])"
+        }
+      }
+    },
+    "calls": {
+      "$to": {
+        ".read": "auth != null && auth.uid === $to",
+        "$from": {
+          ".read": "auth != null && (auth.uid === $from || auth.uid === $to)",
+          ".write": "auth != null && ((auth.uid === $from && !newData.exists()) || auth.uid === $to || (auth.uid === $from && (!root.child('bans').child(auth.uid).exists() || (root.child('bans').child(auth.uid).child('until').exists() && root.child('bans').child(auth.uid).child('until').val() <= now)) && root.child('friends').child($from).child($to).exists() && root.child('friends').child($to).child($from).exists() && !root.child('blocks').child($to).child($from).exists()))",
+          ".validate": "newData.hasChildren(['name','peer','time']) && newData.child('name').isString() && newData.child('name').val().length <= 20 && newData.child('peer').isString() && newData.child('peer').val().length <= 60 && newData.child('time').isNumber()"
+        }
+      }
+    },
+    "inbox": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$other": {
+          ".write": "auth != null && (auth.uid === $uid || auth.uid === $other)",
+          ".validate": "newData.hasChildren(['name','time'])"
+        }
+      }
+    },
+    "dms": {
+      "$pair": {
+        ".read": "auth != null && $pair.contains(auth.uid)",
+        "$id": {
+          ".write": "auth != null && (!data.exists() || (data.child('from').val() === auth.uid && newData.child('from').val() === auth.uid && newData.child('time').val() === data.child('time').val() && !newData.child('audio').exists() && !data.child('audio').exists())) && $pair.contains(auth.uid) && (!root.child('bans').child(auth.uid).exists() || (root.child('bans').child(auth.uid).child('until').exists() && root.child('bans').child(auth.uid).child('until').val() <= now)) && (!root.child('mutes').child(auth.uid).exists() || root.child('mutes').child(auth.uid).child('until').val() <= now)",
+          ".validate": "newData.hasChildren(['from','to','name','time']) && newData.child('from').val() === auth.uid && $pair.contains(newData.child('to').val()) && newData.child('to').val() !== auth.uid && newData.child('name').val() === root.child('profiles').child(auth.uid).child('name').val() && newData.child('name').isString() && newData.child('name').val().length <= 20 && newData.child('time').isNumber() && root.child('settings').child(auth.uid).child('dm').val() === true && root.child('settings').child(newData.child('to').val()).child('dm').val() === true && !root.child('blocks').child(newData.child('to').val()).child(auth.uid).exists() && ((newData.child('text').isString() && newData.child('text').val().length <= 200 && !newData.child('audio').exists() && ((root.child('friends').child(auth.uid).child(newData.child('to').val()).exists() && root.child('friends').child(newData.child('to').val()).child(auth.uid).exists()) || root.child('settings').child(newData.child('to').val()).child('openDm').val() === true || root.child('dms').child($pair).exists())) || (newData.child('audio').val() === true && !newData.child('text').exists() && root.child('friends').child(auth.uid).child(newData.child('to').val()).exists() && root.child('friends').child(newData.child('to').val()).child(auth.uid).exists() && newData.parent().parent().parent().child('dmAudio').child($pair).child($id).exists()))"
+        }
+      }
+    },
+    "dmAudio": {
+      "$pair": {
+        ".read": "auth != null && $pair.contains(auth.uid)",
+        "$id": {
+          ".write": "auth != null && !data.exists() && $pair.contains(auth.uid) && (!root.child('bans').child(auth.uid).exists() || (root.child('bans').child(auth.uid).child('until').exists() && root.child('bans').child(auth.uid).child('until').val() <= now)) && (!root.child('mutes').child(auth.uid).exists() || root.child('mutes').child(auth.uid).child('until').val() <= now)",
+          ".validate": "newData.isString() && newData.val().length <= 300000 && newData.val().beginsWith('data:audio/') && newData.parent().parent().parent().child('dms').child($pair).child($id).child('audio').val() === true"
+        }
+      }
+    },
+    "reports": {
+      ".read": "auth != null && (root.child('roles').child(auth.uid).val() === 'mod' || root.child('roles').child(auth.uid).val() === 'admin' || root.child('roles').child(auth.uid).val() === 'owner')",
+      "$id": {
+        ".write": "auth != null && ((!data.exists() && (!root.child('bans').child(auth.uid).exists() || (root.child('bans').child(auth.uid).child('until').exists() && root.child('bans').child(auth.uid).child('until').val() <= now))) || (!newData.exists() && (root.child('roles').child(auth.uid).val() === 'mod' || root.child('roles').child(auth.uid).val() === 'admin' || root.child('roles').child(auth.uid).val() === 'owner')))",
+        ".validate": "newData.child('by').val() === auth.uid"
+      }
+    },
+    "profiles": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.child('name').isString() && newData.child('name').val().length <= 16"
+      }
+    },
+    "groups": {
+      "$gid": {
+        ".read": "auth != null && data.child('members').child(auth.uid).exists()",
+        ".write": "auth != null && ((!data.exists() && newData.child('owner').val() === auth.uid && newData.child('members').child(auth.uid).exists()) || data.child('owner').val() === auth.uid)",
+        ".validate": "newData.hasChildren(['name','owner','members'])",
+        "name": {
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 24"
+        },
+        "members": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && (!newData.exists() || root.child('groupInvites').child(auth.uid).child($gid).exists())"
+          }
+        }
+      }
+    },
+    "groupMsgs": {
+      "$gid": {
+        ".indexOn": [
+          "time"
+        ],
+        ".write": "auth != null && !newData.exists() && root.child('groups').child($gid).child('owner').val() === auth.uid",
+        ".read": "auth != null && root.child('groups').child($gid).child('members').child(auth.uid).exists()",
+        "$id": {
+          ".write": "auth != null && root.child('groups').child($gid).child('members').child(auth.uid).exists() && ((!data.exists() && newData.child('uid').val() === auth.uid && (!root.child('bans').child(auth.uid).exists() || (root.child('bans').child(auth.uid).child('until').exists() && root.child('bans').child(auth.uid).child('until').val() <= now)) && (!root.child('mutes').child(auth.uid).exists() || root.child('mutes').child(auth.uid).child('until').val() <= now)) || (!newData.exists() && (data.child('uid').val() === auth.uid || root.child('groups').child($gid).child('owner').val() === auth.uid)) || (data.exists() && newData.exists() && data.child('uid').val() === auth.uid && newData.child('uid').val() === auth.uid && newData.child('time').val() === data.child('time').val() && (!root.child('mutes').child(auth.uid).exists() || root.child('mutes').child(auth.uid).child('until').val() <= now) && (!root.child('bans').child(auth.uid).exists() || (root.child('bans').child(auth.uid).child('until').exists() && root.child('bans').child(auth.uid).child('until').val() <= now))))",
+          ".validate": "newData.hasChildren(['uid','name','text','time']) && newData.child('uid').val() === auth.uid && newData.child('name').val() === root.child('profiles').child(auth.uid).child('name').val() && newData.child('name').isString() && newData.child('name').val().length <= 20 && newData.child('text').isString() && newData.child('text').val().length <= 200 && (newData.child('time').val() === now || (data.exists() && newData.child('time').val() === data.child('time').val()))",
+          "fname": {
+            ".validate": "newData.isString() && newData.val().length <= 100"
+          },
+          "fpath": {
+            ".validate": "newData.isString() && newData.val().length <= 200 && newData.val().beginsWith('groupFiles/' + $gid + '/')"
+          },
+          "fsize": {
+            ".validate": "newData.isNumber() && newData.val() <= 10485760"
+          },
+          "furl": {
+            ".validate": "newData.isString() && newData.val().length <= 300 && newData.val().beginsWith('https://res.cloudinary.com/bncdhpob/')"
+          }
+        }
+      }
+    },
+    "myGroups": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "groupInvites": {
+      "$to": {
+        ".read": "auth != null && auth.uid === $to",
+        "$gid": {
+          ".write": "auth != null && (auth.uid === $to || (root.child('groups').child($gid).child('members').child(auth.uid).exists() && root.child('friends').child(auth.uid).child($to).exists() && newData.child('from').val() === auth.uid))"
+        }
+      }
+    },
+    "tickets": {
+      ".read": "auth != null && (root.child('roles').child(auth.uid).val() === 'mod' || root.child('roles').child(auth.uid).val() === 'admin' || root.child('roles').child(auth.uid).val() === 'owner')",
+      "$id": {
+        ".read": "auth != null && (data.child('uid').val() === auth.uid || (root.child('roles').child(auth.uid).val() === 'mod' || root.child('roles').child(auth.uid).val() === 'admin' || root.child('roles').child(auth.uid).val() === 'owner'))",
+        ".write": "auth != null && ((!data.exists() && (!root.child('bans').child(auth.uid).exists() || (root.child('bans').child(auth.uid).child('until').exists() && root.child('bans').child(auth.uid).child('until').val() <= now)) && (!root.child('lastTicket').child(auth.uid).exists() || root.child('lastTicket').child(auth.uid).val() < now - 120000)) || (root.child('roles').child(auth.uid).val() === 'mod' || root.child('roles').child(auth.uid).val() === 'admin' || root.child('roles').child(auth.uid).val() === 'owner'))",
+        ".validate": "newData.hasChildren(['uid','name','type','title','text','status','time']) && (data.exists() || (newData.child('uid').val() === auth.uid && newData.child('name').val() === root.child('profiles').child(auth.uid).child('name').val() && newData.child('status').val() === 'open'))",
+        "uid": {
+          ".validate": "newData.isString()"
+        },
+        "name": {
+          ".validate": "newData.isString() && newData.val().length <= 20"
+        },
+        "type": {
+          ".validate": "newData.val() === 'store' || newData.val() === 'glitch' || newData.val() === 'hack'"
+        },
+        "title": {
+          ".validate": "newData.isString() && newData.val().length >= 3 && newData.val().length <= 60"
+        },
+        "text": {
+          ".validate": "newData.isString() && newData.val().length >= 5 && newData.val().length <= 1000"
+        },
+        "status": {
+          ".write": "auth != null && data.parent().child('uid').val() === auth.uid && newData.val() === 'closed'",
+          ".validate": "newData.val() === 'open' || newData.val() === 'closed'"
+        },
+        "time": {
+          ".validate": "newData.isNumber()"
+        },
+        "replies": {
+          "$rid": {
+            ".write": "auth != null && !data.exists() && (!root.child('bans').child(auth.uid).exists() || (root.child('bans').child(auth.uid).child('until').exists() && root.child('bans').child(auth.uid).child('until').val() <= now)) && ((root.child('roles').child(auth.uid).val() === 'mod' || root.child('roles').child(auth.uid).val() === 'admin' || root.child('roles').child(auth.uid).val() === 'owner') || (root.child('tickets').child($id).child('uid').val() === auth.uid && root.child('tickets').child($id).child('status').val() === 'open'))",
+            ".validate": "newData.hasChildren(['uid','name','text','time']) && newData.child('uid').val() === auth.uid && newData.child('name').val() === root.child('profiles').child(auth.uid).child('name').val() && newData.child('text').isString() && newData.child('text').val().length >= 1 && newData.child('text').val().length <= 500 && newData.child('time').isNumber()"
+          }
+        }
+      }
+    },
+    "lastTicket": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.val() === now"
+      }
+    },
+    "myTickets": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$tid": {
+          ".write": "auth != null && auth.uid === $uid",
+          "status": {
+            ".write": "auth != null && (root.child('roles').child(auth.uid).val() === 'mod' || root.child('roles').child(auth.uid).val() === 'admin' || root.child('roles').child(auth.uid).val() === 'owner')"
+          },
+          "upd": {
+            ".write": "auth != null && (root.child('roles').child(auth.uid).val() === 'mod' || root.child('roles').child(auth.uid).val() === 'admin' || root.child('roles').child(auth.uid).val() === 'owner')"
+          }
+        }
+      }
+    },
+    "fcmTokens": {
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "groupImgs": {
+      "$gid": {
+        ".write": "auth != null && !newData.exists() && root.child('groups').child($gid).child('owner').val() === auth.uid",
+        "$id": {
+          ".read": "auth != null && root.child('groups').child($gid).child('members').child(auth.uid).exists()",
+          ".write": "auth != null && root.child('groups').child($gid).child('members').child(auth.uid).exists() && ((!data.exists() && newData.parent().parent().parent().child('groupMsgs').child($gid).child($id).child('uid').val() === auth.uid && (!root.child('bans').child(auth.uid).exists() || (root.child('bans').child(auth.uid).child('until').exists() && root.child('bans').child(auth.uid).child('until').val() <= now)) && (!root.child('mutes').child(auth.uid).exists() || root.child('mutes').child(auth.uid).child('until').val() <= now)) || (!newData.exists() && (root.child('groups').child($gid).child('owner').val() === auth.uid || root.child('groupMsgs').child($gid).child($id).child('uid').val() === auth.uid)))",
+          ".validate": "newData.isString() && newData.val().length <= 200000 && newData.val().beginsWith('data:image/jpeg;base64,') && newData.parent().parent().parent().child('groupMsgs').child($gid).child($id).child('img').val() === true"
+        }
+      }
+    },
+    "presence": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.isBoolean() || newData.isNumber()"
+      }
+    },
+    "groupCalls": {
+      "$gid": {
+        ".read": "auth != null && root.child('groups').child($gid).child('members').child(auth.uid).exists()",
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid && (!newData.exists() || root.child('groups').child($gid).child('members').child(auth.uid).exists())",
+          ".validate": "newData.hasChildren(['name','peer','time']) && newData.child('name').isString() && newData.child('name').val().length <= 20 && newData.child('peer').isString() && newData.child('peer').val().length <= 60"
+        }
+      }
+    }
+  }
+}

@@ -9,6 +9,9 @@
 <meta name="theme-color" content="#090912">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="WandSMP">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap');
   :root{--bg:#12161c;--card:#1b212b;--text:#e8edf4;--muted:#9aa6b6;--green:#5cb85c;--border:#2a3240;--red:#e05555}
@@ -477,6 +480,7 @@
   function showErr(m, keep){ err.textContent = m; if(!keep) setTimeout(() => { if(err.textContent===m) err.textContent = ""; }, 4500); }
 
   firebase.initializeApp(firebaseConfig);
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("firebase-messaging-sw.js").catch(() => {});
   const auth = firebase.auth(), db = firebase.database();
   const TS = firebase.database.ServerValue.TIMESTAMP;
   const key = n => n.toLowerCase();
@@ -626,7 +630,7 @@
       const pb = document.createElement("button"); pb.className = "ghost";
       const kb = d.fsize ? " (" + (d.fsize > 1048576 ? (d.fsize / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(d.fsize / 1024)) + " KB") + ")" : "";
       pb.textContent = "📎 " + (d.fname || "ملف") + kb;
-      pb.onclick = () => downloadGroupFile(d.fpath, d.fname);
+      pb.onclick = () => downloadGroupFile(d.furl, d.fname);
       b.appendChild(pb);
     } else b.textContent = d.text;
     const inner = document.createElement("div"); inner.className = "inner";
@@ -1780,6 +1784,7 @@
   $("gcSound").onclick = () => { document.querySelectorAll("#gcGrid video").forEach(v => v.play().catch(() => {})); $("gcSound").classList.add("hidden"); };
 
   /* ---------- ملفات القروبات (Firebase Storage) ---------- */
+  const CLD_CLOUD = "bncdhpob", CLD_PRESET = "wandsmp";   // إعدادات Cloudinary
   const FILE_MAX = 10 * 1024 * 1024, BAD_EXT = /\.(exe|bat|cmd|msi|apk|scr|js|vbs|jar|ps1|sh|html?|svg|com|dll|lnk)$/i;
   $("gFileBtn").onclick = () => { if (cg) $("gFileFile").click(); };
   $("gFileFile").onchange = e => {
@@ -1792,18 +1797,20 @@
     const gid = cg.id, me = myUid(), id = db.ref("groupMsgs/" + gid).push().key;
     const safe = f.name.replace(/[^A-Za-z0-9._-]/g, "_").slice(-60), path = "groupFiles/" + gid + "/" + id + "_" + safe;
     lastG = Date.now(); showErr("⏳ جاري رفع الملف...", true);
-    firebase.storage().ref(path).put(f)
-      .then(() => db.ref("groupMsgs/" + gid + "/" + id).set({ uid: me, name: myName(), text: "📎 ملف", file: true, fname: f.name.slice(0, 100), fpath: path, fsize: f.size, time: TS }))
+    const fd = new FormData(); fd.append("file", f); fd.append("upload_preset", CLD_PRESET);
+    fetch("https://api.cloudinary.com/v1_1/" + CLD_CLOUD + "/auto/upload", { method: "POST", body: fd })
+      .then(r => r.json())
+      .then(j => {
+        if (!j.secure_url) throw new Error((j.error && j.error.message) || "فشل الرفع");
+        return db.ref("groupMsgs/" + gid + "/" + id).set({ uid: me, name: myName(), text: "📎 ملف", file: true, fname: f.name.slice(0, 100), furl: j.secure_url, fsize: f.size, time: TS });
+      })
       .then(() => showErr("انرسل الملف ✓"))
-      .catch(() => showErr("ما انرسل الملف (تأكد من قواعد Storage واسم الـ bucket، وإنك ما انطردت)", true));
+      .catch(e => showErr("ما انرسل الملف: " + (e && e.message ? e.message : "تأكد من إعدادات Cloudinary"), true));
   };
-  async function downloadGroupFile(path, name){
-    if (!confirm("تحمّل الملف " + (name || "") + "؟\nلا تفتح ملفات من ناس ما تعرفهم.")) return;
-    try {
-      const url = await firebase.storage().ref(path).getDownloadURL();
-      const a = document.createElement("a"); a.href = url; a.target = "_blank"; a.rel = "noopener"; a.download = name || "file";
-      document.body.appendChild(a); a.click(); a.remove();
-    } catch (ex) { showErr("ما قدرت أحمّل الملف (يمكن انحذف)"); }
+  function downloadGroupFile(url, name){
+    if (!/^https:\/\/res\.cloudinary\.com\//.test(url || "")) return showErr("رابط الملف غير صالح");
+    if (!confirm("تفتح الملف " + (name || "") + "؟\nلا تفتح ملفات من ناس ما تعرفهم.")) return;
+    window.open(url, "_blank", "noopener");
   }
 
   /* ---------- نغمة الرنين (تتولّد بالكود، ما تحتاج ملف صوت) ---------- */

@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>الشات | WandSMP</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<meta name="theme-color" content="#090912">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap');
   :root{--bg:#12161c;--card:#1b212b;--text:#e8edf4;--muted:#9aa6b6;--green:#5cb85c;--border:#2a3240;--red:#e05555}
@@ -111,6 +116,18 @@
   input:focus,textarea:focus,.accform input:focus{outline:2px solid rgba(227,182,90,.7)!important}
   #pinBar{background:linear-gradient(90deg,rgba(167,139,250,.22),rgba(227,182,90,.18));border-bottom:1px solid rgba(227,182,90,.3);padding:8px 20px;text-align:center;font-size:.92rem;font-weight:700}
   #callBar .ghost{margin-inline-start:4px}
+  body{height:100vh;height:100dvh}
+
+  /* ===== إحساس تطبيق الشات (واتساب/ديسكورد) ===== */
+  #msgs,#dmMsgs,#gMsgs{background-image:radial-gradient(rgba(227,182,90,.07) 1px,transparent 1px);background-size:22px 22px}
+  .msg.bub{display:flex;gap:10px;align-items:flex-start;max-width:min(600px,88%);border-radius:18px!important;border-top-right-radius:4px!important;align-self:flex-start}
+  .msg.bub .inner{flex:1;min-width:0}
+  .msg.bub.mine{align-self:flex-end;border-top-right-radius:18px!important;border-top-left-radius:4px!important;background:linear-gradient(145deg,rgba(227,182,90,.24),rgba(139,92,246,.2))!important;border-color:rgba(227,182,90,.4)!important}
+  .av{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#fff;font-size:.95rem;box-shadow:0 2px 8px rgba(0,0,0,.45)}
+  .tick{color:#7fd4ff;font-size:.78rem;font-weight:800;margin-inline-start:6px}
+  #chatForm input,#dmForm input,#gForm input{border-radius:30px!important;padding:12px 18px!important}
+  #chatForm button.main,#dmForm button.main,#gForm button.main{font-size:0!important;width:46px;height:46px;border-radius:50%!important;padding:0!important;display:grid;place-items:center}
+  #chatForm button.main::before,#dmForm button.main::before,#gForm button.main::before{content:"➤";font-size:1.15rem;transform:scaleX(-1)}
 </style>
 </head>
 <body class="locked">
@@ -138,6 +155,7 @@
   <b id="callText"></b>
   <div class="row">
     <button class="main" id="callAccept" style="padding:6px 16px">قبول</button>
+    <button class="main hidden" id="audioBtn" style="padding:6px 14px">🔊 اضغط لتشغيل الصوت</button>
     <button class="ghost hidden" id="camBtn">📹 كاميرا</button>
     <button class="ghost hidden" id="screenBtn">🖥️ مشاركة الشاشة</button>
     <button class="ghost red" id="callEnd">إنهاء</button>
@@ -230,7 +248,7 @@
 
   <div id="convo" class="pane hidden" style="position:absolute;inset:0;background:var(--bg);z-index:5">
     <div class="row" style="padding:12px 20px;background:var(--card);border-bottom:1px solid var(--border);justify-content:space-between">
-      <div class="row"><button class="ghost" id="back">← رجوع</button><b id="convoName"></b></div>
+      <div class="row"><button class="ghost" id="back">← رجوع</button><div><b id="convoName"></b><br><small id="convoStat" style="color:var(--muted)"></small></div></div>
       <div class="row"><button class="ghost" id="callBtn">📞 اتصال</button><button class="ghost red" id="blockBtn">حظر</button></div>
     </div>
     <div class="scroll" id="dmMsgs"></div>
@@ -265,6 +283,7 @@
     <div class="row" style="padding:12px 20px;background:var(--card);border-bottom:1px solid var(--border);justify-content:space-between">
       <div class="row"><button class="ghost" id="gBack">← رجوع</button><b id="gTitle"></b></div>
       <div class="row">
+        <button class="ghost" id="gcBtn">📞 مكالمة</button>
         <button class="ghost" id="gInfoBtn">👥 الأعضاء</button>
         <button class="ghost red" id="gLeave">خروج</button>
         <button class="ghost red hidden" id="gDel">🗑 حذف القروب</button>
@@ -277,10 +296,20 @@
         <button class="ghost" id="gInvBtn">دعوة صديق</button>
       </div>
     </div>
+    <div id="gcPanel" class="box hidden" style="margin:10px 20px 0">
+      <div class="row" style="justify-content:space-between"><b id="gcText">📞 مكالمة القروب</b>
+        <div class="row">
+          <button class="ghost" id="gcMute">🎤 كتم</button><button class="ghost" id="gcCam">📹 كاميرا</button><button class="ghost" id="gcScreen">🖥️ مشاركة الشاشة</button>
+          <button class="main hidden" id="gcSound" style="padding:6px 12px">🔊 تشغيل الصوت</button><button class="ghost red" id="gcLeave">خروج</button>
+        </div></div>
+      <div id="gcGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:8px;max-height:40vh;overflow:auto"></div>
+    </div>
     <div class="scroll" id="gMsgs"></div>
     <form id="gForm">
       <input id="gText" placeholder="اكتب للقروب..." maxlength="200" autocomplete="off" required>
       <button type="button" class="emo" data-t="gText" title="إيموجي">😀</button>
+      <button type="button" class="emo" id="gImgBtn" title="إرسال صورة">🖼️</button><input type="file" id="gImgFile" accept="image/*" class="hidden">
+      <button type="button" class="emo" id="gFileBtn" title="إرسال ملف">📎</button><input type="file" id="gFileFile" class="hidden">
       <button class="main">إرسال</button>
     </form>
   </div>
@@ -428,12 +457,14 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyCD2_omUv2O9H3B0YEhlQ1KJbKzdBxrIx0",
     authDomain: "wandsmp-98824.firebaseapp.com",
     databaseURL: "https://wandsmp-98824-default-rtdb.firebaseio.com",
     projectId: "wandsmp-98824",
+    storageBucket: "wandsmp-98824.firebasestorage.app",   // تأكد منه من صفحة Storage في Firebase
     appId: "1:375935441371:web:38ad3f4501f91d452a6ffe"
   };
 
@@ -571,7 +602,7 @@
     const acts = document.createElement("span"); acts.className = "acts";
     const uid = d.uid || d.from;
     if (k) box.dataset.k = k;
-    if (mine && !d.audio && k) acts.append(actBtn("✏️", "", "تعديل الرسالة", () => editMsg(where, k, d.text)));
+    if (mine && !d.audio && !d.img && !d.file && k) acts.append(actBtn("✏️", "", "تعديل الرسالة", () => editMsg(where, k, d.text)));
     if (!mine) {
       acts.append(actBtn("⚑", "", "إبلاغ", () => report(where, uid, d.name, d.text)));
       if (where === "public" && uid) acts.append(actBtn("➕", "fr", "إضافة صديق", () => sendRequest(uid, d.name)));
@@ -587,8 +618,28 @@
       const pb = document.createElement("button"); pb.className = "ghost"; pb.textContent = "▶ رسالة صوتية";
       pb.onclick = () => playAudio(k, pb);
       b.appendChild(pb);
+    } else if (d.img && where === "group") {
+      const pb = document.createElement("button"); pb.className = "ghost"; pb.textContent = "🖼️ عرض الصورة";
+      pb.onclick = () => viewGroupImg(k, pb);
+      b.appendChild(pb);
+    } else if (d.file && where === "group") {
+      const pb = document.createElement("button"); pb.className = "ghost";
+      const kb = d.fsize ? " (" + (d.fsize > 1048576 ? (d.fsize / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(d.fsize / 1024)) + " KB") + ")" : "";
+      pb.textContent = "📎 " + (d.fname || "ملف") + kb;
+      pb.onclick = () => downloadGroupFile(d.fpath, d.fname);
+      b.appendChild(pb);
     } else b.textContent = d.text;
-    box.append(acts, n, badgeEl(uid), t, b);
+    const inner = document.createElement("div"); inner.className = "inner";
+    inner.append(acts, n, badgeEl(uid), t);
+    if (mine) { const tk = document.createElement("span"); tk.className = "tick"; tk.textContent = "✓"; inner.append(tk); }
+    inner.append(b);
+    box.classList.add("bub");
+    if (!mine) {
+      const av = document.createElement("span"); av.className = "av"; const nm = (d.name || "?").trim();
+      av.textContent = nm.charAt(0).toUpperCase(); let h = 0; for (const ch of nm) h = (h * 31 + ch.charCodeAt(0)) % 360;
+      av.style.background = "hsl(" + h + " 55% 42%)"; box.append(av);
+    }
+    box.append(inner);
     return box;
   }
 
@@ -610,10 +661,27 @@
     db.ref(p).update({ text: t, edited: true }).catch(() => showErr("ما انعدلت الرسالة (تأكد إنك نشرت القواعد الجديدة)"));
   }
   function applyEdit(box, snap){
-    const d = snap.val(); if (!d || d.audio) return;
+    const d = snap.val(); if (!d || d.audio || d.img || d.file) return;
     const el = box.querySelector('[data-k="' + snap.key + '"]'); if (!el) return;
     const b = el.querySelector(".b"); if (b) b.textContent = d.text;
     const t = el.querySelector(".t"); if (t && d.edited && !t.textContent.includes("معدّلة")) t.textContent += " • معدّلة";
+  }
+
+  /* ---------- حالة الاتصال (متصل الآن / آخر ظهور) ---------- */
+  let presMap = {}, presUn = {};
+  const isOnline = uid => presMap[uid] === true;
+  function refreshConvoStatus(){
+    const el = $("convoStat"); if (!el) return;
+    if (!other || !friends[other.uid]) { el.textContent = ""; return; }
+    const v = presMap[other.uid];
+    el.textContent = v === true ? "🟢 متصل الآن" : (typeof v === "number" ? "آخر ظهور " + new Date(v).toLocaleString("ar-EG", { hour: "2-digit", minute: "2-digit", day: "numeric", month: "short" }) : "");
+  }
+  function watchPresence(){
+    for (const uid of Object.keys(friends)) if (!presUn[uid]) {
+      const r = db.ref("presence/" + uid), cb = s => { presMap[uid] = s.val(); renderFriends(); refreshConvoStatus(); };
+      r.on("value", cb, () => {}); presUn[uid] = () => r.off("value", cb);
+    }
+    for (const uid of Object.keys(presUn)) if (!friends[uid]) { presUn[uid](); delete presUn[uid]; delete presMap[uid]; }
   }
 
   /* ---------- التبويبات ---------- */
@@ -638,7 +706,7 @@
 
   function listen(r, cb){ r.on("value", cb, () => {}); listeners.push(() => r.off("value", cb)); }
   function detach(){
-    listeners.forEach(f => f()); listeners = []; attached = false; pushDone = false;
+    listeners.forEach(f => f()); listeners = []; attached = false; pushDone = false; Object.values(presUn).forEach(f => f()); presUn = {}; presMap = {};
     dmOn = false; blocked = {}; inbox = {}; friends = {}; requests = {}; groupsMine = {}; grInv = {}; myTk = {}; tkAll = {}; clearGroupListeners(); updateBadges(); closeGroup(); renderGroups(); closeTicket(); renderTickets(); myBan = null; myMute = null;
     updateStatus();
   }
@@ -647,13 +715,14 @@
     const u = auth.currentUser;
     if (!u || !u.displayName || attached) return;
     attached = true; setupPush();
+    listen(db.ref(".info/connected"), s => { if (s.val() === true) { const pr = db.ref("presence/" + u.uid); pr.onDisconnect().set(TS).then(() => pr.set(true)).catch(() => {}); } });
     db.ref("usernames/" + key(u.displayName)).set(u.uid).catch(() => {});
     db.ref("profiles/" + u.uid).set({ name: u.displayName }).catch(() => {});
     listen(db.ref("settings/" + u.uid + "/dm"), s => { dmOn = s.val() === true; $("dmToggle").checked = dmOn; dmUi(); });
     listen(db.ref("settings/" + u.uid + "/openDm"), s => { $("openToggle").checked = s.val() === true; });
     listen(db.ref("blocks/" + u.uid), s => { blocked = s.val() || {}; renderInbox(); refreshBlockBtn(); });
     listen(db.ref("inbox/" + u.uid), s => { inbox = s.val() || {}; renderInbox(); updateBadges(); });
-    listen(db.ref("friends/" + u.uid), s => { friends = s.val() || {}; renderFriends(); });
+    listen(db.ref("friends/" + u.uid), s => { friends = s.val() || {}; renderFriends(); watchPresence(); });
     listen(db.ref("requests/" + u.uid), s => { requests = s.val() || {}; renderFriends(); updateBadges(); });
     listen(db.ref("bans/" + u.uid), s => {
       myBan = s.val(); if (myBan && !banActive(myBan)) myBan = null; updateStatus();
@@ -881,7 +950,7 @@
     for (const [uid, v] of reqs) rl.appendChild(makeRow(v.name, [rowBtn("قبول", "", () => accept(uid, v.name)), rowBtn("رفض", "red", () => decline(uid))], "طلب جديد"));
     const fr = Object.entries(friends).sort((a, b) => dmUnread(b[0]) - dmUnread(a[0]));
     if (!fr.length) fl.innerHTML = '<div class="notice">ما عندك أصدقاء للحين. أضف أحد من فوق، أو بزر ➕ جنب رسائل الشات العام.</div>';
-    for (const [uid, v] of fr) fl.appendChild(makeRow(v.name, [rowBtn("📞 اتصل", "", () => startCall(uid, v.name)), rowBtn("💬 رسالة", "", () => messageFriend(uid, v.name)), rowBtn("حذف", "red", () => unfriend(uid, v.name))], dmUnread(uid) ? "رسالة جديدة" : false));
+    for (const [uid, v] of fr) fl.appendChild(makeRow((isOnline(uid) ? "🟢 " : "⚪ ") + v.name, [rowBtn("📞 اتصل", "", () => startCall(uid, v.name)), rowBtn("💬 رسالة", "", () => messageFriend(uid, v.name)), rowBtn("حذف", "red", () => unfriend(uid, v.name))], dmUnread(uid) ? "رسالة جديدة" : false));
   }
 
   /* ---------- الرسائل الخاصة ---------- */
@@ -927,7 +996,7 @@
     $("convoName").textContent = name;
     $("dmMsgs").innerHTML = "";
     $("convo").classList.remove("hidden");
-    refreshBlockBtn();
+    refreshBlockBtn(); refreshConvoStatus();
     curPair = pairId(myUid(), uid);
     convoRef = db.ref("dms/" + curPair).limitToLast(100);
     convoCb = convoRef.on("child_added", snap => {
@@ -1478,17 +1547,31 @@
       const d = snap.val(); if (d.uid !== myUid() && blocked[d.uid]) return;
       const box = makeMsg(d, "group", d.uid === myUid(), snap.key); box.dataset.k = snap.key;
       if (d.uid === myUid() || (cg && cg.owner === myUid()))
-        box.querySelector(".acts").append(actBtn("🗑", "", "حذف", () => removeItem("groupMsgs/" + gid, snap.key)));
+        box.querySelector(".acts").append(actBtn("🗑", "", "حذف", () => delGroupMsg(gid, snap.key, d)));
       $("gMsgs").appendChild(box); applyBadges(); $("gMsgs").scrollTop = $("gMsgs").scrollHeight;
     }, () => {});
     gMsgRm = gMsgRef.on("child_removed", snap => {
       const el = $("gMsgs").querySelector('[data-k="' + snap.key + '"]'); if (el) el.remove();
     });
     gMsgCh = gMsgRef.on("child_changed", snap => applyEdit($("gMsgs"), snap));
+    gcRef = db.ref("groupCalls/" + gid); gcParts = {}; $("gcBtn").textContent = "📞 مكالمة";
+    gcCb = gcRef.on("value", s => {
+      gcParts = s.val() || {}; const n = Object.keys(gcParts).length;
+      $("gcBtn").textContent = gc ? "📞 داخل المكالمة" : (n ? "📞 انضم للمكالمة (" + n + ")" : "📞 مكالمة");
+      if (gc) {
+        for (const [uid, v] of Object.entries(gcParts)) if (uid !== myUid() && v.peer && !gc.known[v.peer]) { gc.known[v.peer] = true; if (gc.vStream) gcSendVideo(v.peer); }
+        const live = new Set(Object.values(gcParts).map(v => v.peer));
+        for (const p of Object.keys(gc.calls)) if (!live.has(p)) { try { gc.calls[p].close(); } catch (e) {} gcDrop("a-" + p); gcDrop("v-" + p); delete gc.calls[p]; }
+        gcUi();
+      }
+    }, () => {});
   }
   function closeGroup(){
     if (gMsgRef) { if (gMsgCb) gMsgRef.off("child_added", gMsgCb); if (gMsgRm) gMsgRef.off("child_removed", gMsgRm); if (gMsgCh) gMsgRef.off("child_changed", gMsgCh); }
     if (gMemRef && gMemCb) gMemRef.off("value", gMemCb);
+    if (gc) gcLeave();
+    if (gcRef && gcCb) gcRef.off("value", gcCb);
+    gcRef = gcCb = null; gcParts = {};
     gMsgRef = gMsgCb = gMsgRm = gMsgCh = gMemRef = gMemCb = cg = null;
     const v = $("gview"); if (v) v.classList.add("hidden");
   }
@@ -1532,7 +1615,8 @@
   $("gDel").onclick = async () => {
     if (!cg || cg.owner !== myUid() || !confirm("تحذف القروب وكل رسائله نهائي؟")) return;
     const id = cg.id; closeGroup();
-    try { await db.ref("groupMsgs/" + id).remove(); await db.ref("groups/" + id).remove(); await db.ref("myGroups/" + myUid() + "/" + id).remove(); }
+    try { await db.ref("groupMsgs/" + id).remove(); await db.ref("groupImgs/" + id).remove();
+      try { const l = await firebase.storage().ref("groupFiles/" + id).listAll(); await Promise.all(l.items.map(i => i.delete())); } catch (e) {} await db.ref("groups/" + id).remove(); await db.ref("myGroups/" + myUid() + "/" + id).remove(); }
     catch (ex) { showErr("ما انحذف القروب"); }
   };
   $("gForm").addEventListener("submit", e => {
@@ -1546,6 +1630,181 @@
       .catch(() => showErr("ما انرسلت (يمكن انطردت أو أنت مكتوم)", true));
     $("gText").value = "";
   });
+
+  /* ---------- صور القروبات ---------- */
+  const imgCache = {};
+  function compressImage(file, maxDim, cb){
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const sc = Math.min(1, maxDim / Math.max(img.width, img.height));
+      const w = Math.round(img.width * sc), h = Math.round(img.height * sc);
+      const c = document.createElement("canvas"); c.width = w; c.height = h;
+      c.getContext("2d").drawImage(img, 0, 0, w, h);
+      let q = 0.8, data = c.toDataURL("image/jpeg", q);
+      while (data.length > 180000 && q > 0.3) { q -= 0.1; data = c.toDataURL("image/jpeg", q); }
+      cb(data.length > 200000 ? null : data);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); cb(null); };
+    img.src = url;
+  }
+  $("gImgBtn").onclick = () => { if (cg) $("gImgFile").click(); };
+  $("gImgFile").onchange = e => {
+    const f = e.target.files[0]; e.target.value = "";
+    if (!f || !cg) return;
+    if (!/^image\//.test(f.type)) return showErr("اختر صورة بس");
+    const bm = blockedMsg(); if (bm) return showErr(bm);
+    if (Date.now() - lastG < COOLDOWN_MS) return showErr("استنى شوي قبل الرسالة الجاية");
+    const gid = cg.id, me = myUid();
+    compressImage(f, 1024, data => {
+      if (!data) return showErr("ما قدرت أجهّز الصورة، جرب صورة ثانية");
+      lastG = Date.now();
+      const id = db.ref("groupMsgs/" + gid).push().key;
+      db.ref().update({
+        ["groupMsgs/" + gid + "/" + id]: { uid: me, name: myName(), text: "📷 صورة", img: true, time: TS },
+        ["groupImgs/" + gid + "/" + id]: data
+      }).catch(() => showErr("ما انرسلت الصورة (يمكن انطردت أو أنت مكتوم، أو ما نشرت القواعد الجديدة)", true));
+    });
+  };
+  async function viewGroupImg(k, btn){
+    try {
+      let src = imgCache[k];
+      if (!src) { if (!cg) return; const sn = await db.ref("groupImgs/" + cg.id + "/" + k).once("value"); src = sn.val(); if (src) imgCache[k] = src; }
+      if (!src) return showErr("ما لقيت الصورة");
+      const im = document.createElement("img"); im.src = src;
+      im.style.cssText = "max-width:100%;max-height:320px;border-radius:10px;display:block;cursor:zoom-in";
+      im.onclick = () => { const z = im.dataset.z === "1"; im.dataset.z = z ? "" : "1"; im.style.maxHeight = z ? "320px" : "none"; im.style.cursor = z ? "zoom-in" : "zoom-out"; };
+      btn.replaceWith(im);
+    } catch (ex) { showErr("ما قدرت أحمّل الصورة: " + ex.code); }
+  }
+  function delGroupMsg(gid, k, d){
+    if (!confirm("تحذف هذا؟")) return;
+    const up = { ["groupMsgs/" + gid + "/" + k]: null };
+    if (d && d.img) up["groupImgs/" + gid + "/" + k] = null;
+    if (d && d.file && d.fpath) { try { firebase.storage().ref(d.fpath).delete().catch(() => {}); } catch (e) {} }
+    db.ref().update(up).catch(() => showErr("ما انحذف (ما عندك صلاحية)"));
+  }
+
+  /* ---------- مكالمات القروبات: صوت + كاميرا + مشاركة شاشة (حتى 6 أشخاص) ---------- */
+  let gc = null, gcRef = null, gcCb = null, gcParts = {};
+  const GC_MAX = 6;
+  function gcTile(id, label, stream, muted){
+    let t = $("gct-" + id);
+    if (!t) {
+      t = document.createElement("div"); t.id = "gct-" + id; t.style.cssText = "position:relative;background:#000;border-radius:12px;overflow:hidden;min-height:56px";
+      const v = document.createElement("video"); v.autoplay = true; v.playsInline = true; v.style.cssText = "width:100%;display:block;max-height:240px;object-fit:contain";
+      const l = document.createElement("span"); l.style.cssText = "position:absolute;bottom:4px;right:8px;background:rgba(0,0,0,.65);padding:1px 8px;border-radius:8px;font-size:.75rem";
+      t.append(v, l); $("gcGrid").appendChild(t);
+    }
+    const v = t.querySelector("video"); v.muted = !!muted; v.srcObject = stream; t.querySelector("span").textContent = label;
+    v.play().catch(() => { if (!muted) $("gcSound").classList.remove("hidden"); });
+  }
+  function gcDrop(id){ const t = $("gct-" + id); if (t) t.remove(); }
+  function gcUi(){
+    const tr = gc && gc.stream.getAudioTracks()[0];
+    $("gcText").textContent = gc ? "📞 في مكالمة القروب (" + Math.max(1, Object.keys(gcParts).length) + ")" : "📞 مكالمة القروب";
+    $("gcCam").textContent = gc && gc.vStream && gc.vKind === "cam" ? "⏹ إيقاف الكاميرا" : "📹 كاميرا";
+    $("gcScreen").textContent = gc && gc.vStream && gc.vKind === "screen" ? "⏹ إيقاف المشاركة" : "🖥️ مشاركة الشاشة";
+    $("gcMute").textContent = tr && !tr.enabled ? "🔇 مكتوم" : "🎤 كتم";
+  }
+  function gcAudio(call, name){
+    gc.calls[call.peer] = call;
+    call.on("stream", rs => { gcTile("a-" + call.peer, "🎤 " + (name || ""), rs, false); gcUi(); });
+    call.on("close", () => { gcDrop("a-" + call.peer); if (gc) delete gc.calls[call.peer]; });
+    call.on("error", () => {});
+  }
+  function gcSendVideo(pid){
+    if (!gc || !gc.vStream) return;
+    gc.vcalls[pid] = gc.peer.call(pid, gc.vStream, { metadata: { type: "gvideo", name: myName(), kind: gc.vKind } });
+  }
+  async function gcJoin(){
+    if (!cg || gc) return;
+    const bm = blockedMsg(); if (bm) return showErr(bm);
+    if (callState !== "idle") return showErr("أنت في مكالمة ثانية، أنهها أول");
+    if (Object.keys(gcParts).length >= GC_MAX) return showErr("المكالمة ممتلئة (6 أشخاص)");
+    const stream = await getMic(); if (!stream) return;
+    const gid = cg.id, me = myUid(), peer = new Peer();
+    gc = { gid, stream, peer, calls: {}, vcalls: {}, vStream: null, vKind: null, known: {}, id: null };
+    $("gcPanel").classList.remove("hidden"); $("gcText").textContent = "⏳ جاري الاتصال..."; $("gcBtn").textContent = "📞 داخل المكالمة";
+    peer.on("error", () => gcLeave("ما قدرت أتصل (الشبكة ما تسمح)"));
+    peer.on("call", call => {
+      const md = call.metadata || {};
+      if (md.type === "gvideo") {
+        call.answer();
+        call.on("stream", rs => gcTile("v-" + call.peer, "🖥️ " + (md.name || "") + (md.kind === "cam" ? " (كاميرا)" : " (شاشة)"), rs, true));
+        call.on("close", () => gcDrop("v-" + call.peer));
+      } else { call.answer(stream); gcAudio(call, md.name); }
+    });
+    peer.on("open", async id => {
+      try {
+        gc.id = id; gc.known[id] = true;
+        const ref = db.ref("groupCalls/" + gid + "/" + me);
+        await ref.onDisconnect().remove(); await ref.set({ name: myName(), peer: id, time: TS });
+        const snap = await db.ref("groupCalls/" + gid).once("value");
+        snap.forEach(c => { const v = c.val(); if (!v || !v.peer) return; gc.known[v.peer] = true; if (c.key !== me) gcAudio(peer.call(v.peer, stream, { metadata: { type: "gaudio", name: myName() } }), v.name); });
+        gcUi();
+      } catch (e) { gcLeave("ما قدرت أدخل المكالمة (تأكد إنك نشرت القواعد الجديدة)"); }
+    });
+  }
+  async function gcVideo(kind){
+    if (!gc) return;
+    if (gc.vStream) return gcStopVideo();
+    try {
+      gc.vStream = kind === "screen" ? await navigator.mediaDevices.getDisplayMedia({ video: true }) : await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
+    } catch (e) { if (gc) gc.vStream = null; return showErr(kind === "screen" ? "ما قدرت أشارك الشاشة (أغلب الجوالات ما تدعمها)" : "ما قدرت أفتح الكاميرا، اسمح للمتصفح"); }
+    gc.vKind = kind; gcTile("me-v", "أنت (" + (kind === "cam" ? "كاميرا" : "شاشة") + ")", gc.vStream, true);
+    for (const v of Object.values(gcParts)) if (v.peer && v.peer !== gc.id) gcSendVideo(v.peer);
+    gc.vStream.getVideoTracks()[0].onended = gcStopVideo; gcUi();
+  }
+  function gcStopVideo(){
+    if (!gc || !gc.vStream) return;
+    gc.vStream.getTracks().forEach(t => t.stop());
+    Object.values(gc.vcalls).forEach(c => { try { c.close(); } catch (e) {} });
+    gc.vcalls = {}; gc.vStream = null; gc.vKind = null; gcDrop("me-v"); gcUi();
+  }
+  function gcLeave(msg){
+    const g = gc; if (!g) return;
+    gcStopVideo(); gc = null;
+    try { Object.values(g.calls).forEach(c => c.close()); } catch (e) {}
+    try { g.peer.destroy(); } catch (e) {}
+    g.stream.getTracks().forEach(t => t.stop());
+    if (myUid()) { const r = db.ref("groupCalls/" + g.gid + "/" + myUid()); r.onDisconnect().cancel().catch(() => {}); r.remove().catch(() => {}); }
+    $("gcGrid").innerHTML = ""; $("gcPanel").classList.add("hidden"); $("gcSound").classList.add("hidden");
+    gcUi(); if (msg) showErr(msg);
+  }
+  $("gcBtn").onclick = () => { if (!gc) gcJoin(); else showErr("أنت داخل المكالمة الحين"); };
+  $("gcLeave").onclick = () => gcLeave();
+  $("gcCam").onclick = () => gcVideo("cam");
+  $("gcScreen").onclick = () => gcVideo("screen");
+  $("gcMute").onclick = () => { const t = gc && gc.stream.getAudioTracks()[0]; if (t) { t.enabled = !t.enabled; gcUi(); } };
+  $("gcSound").onclick = () => { document.querySelectorAll("#gcGrid video").forEach(v => v.play().catch(() => {})); $("gcSound").classList.add("hidden"); };
+
+  /* ---------- ملفات القروبات (Firebase Storage) ---------- */
+  const FILE_MAX = 10 * 1024 * 1024, BAD_EXT = /\.(exe|bat|cmd|msi|apk|scr|js|vbs|jar|ps1|sh|html?|svg|com|dll|lnk)$/i;
+  $("gFileBtn").onclick = () => { if (cg) $("gFileFile").click(); };
+  $("gFileFile").onchange = e => {
+    const f = e.target.files[0]; e.target.value = "";
+    if (!f || !cg) return;
+    if (f.size > FILE_MAX) return showErr("الملف كبير (الحد الأقصى 10 ميغا)");
+    if (BAD_EXT.test(f.name)) return showErr("هذا النوع من الملفات ممنوع (برامج وسكربتات وصفحات ويب)");
+    const bm = blockedMsg(); if (bm) return showErr(bm);
+    if (Date.now() - lastG < COOLDOWN_MS) return showErr("استنى شوي قبل الرسالة الجاية");
+    const gid = cg.id, me = myUid(), id = db.ref("groupMsgs/" + gid).push().key;
+    const safe = f.name.replace(/[^A-Za-z0-9._-]/g, "_").slice(-60), path = "groupFiles/" + gid + "/" + id + "_" + safe;
+    lastG = Date.now(); showErr("⏳ جاري رفع الملف...", true);
+    firebase.storage().ref(path).put(f)
+      .then(() => db.ref("groupMsgs/" + gid + "/" + id).set({ uid: me, name: myName(), text: "📎 ملف", file: true, fname: f.name.slice(0, 100), fpath: path, fsize: f.size, time: TS }))
+      .then(() => showErr("انرسل الملف ✓"))
+      .catch(() => showErr("ما انرسل الملف (تأكد من قواعد Storage واسم الـ bucket، وإنك ما انطردت)", true));
+  };
+  async function downloadGroupFile(path, name){
+    if (!confirm("تحمّل الملف " + (name || "") + "؟\nلا تفتح ملفات من ناس ما تعرفهم.")) return;
+    try {
+      const url = await firebase.storage().ref(path).getDownloadURL();
+      const a = document.createElement("a"); a.href = url; a.target = "_blank"; a.rel = "noopener"; a.download = name || "file";
+      document.body.appendChild(a); a.click(); a.remove();
+    } catch (ex) { showErr("ما قدرت أحمّل الملف (يمكن انحذف)"); }
+  }
 
   /* ---------- نغمة الرنين (تتولّد بالكود، ما تحتاج ملف صوت) ---------- */
   let audioCtx = null, ringInt = null, notifFor = null, activeNotif = null;
@@ -1687,6 +1946,7 @@
     $("callAccept").classList.toggle("hidden", callState !== "ringing");
     $("callEnd").textContent = callState === "ringing" ? "رفض" : "إنهاء";
     $("camBtn").classList.toggle("hidden", callState !== "live"); $("screenBtn").classList.toggle("hidden", callState !== "live");
+    if (callState !== "live") $("audioBtn").classList.add("hidden");
     let t = "";
     if (callState === "ringing" && incoming) t = "📞 " + incoming.name + " يتصل فيك";
     else if (callState === "calling" && callWith) t = "📞 جاري الاتصال بـ " + callWith.name + "...";
@@ -1711,10 +1971,21 @@
     callUi(); if (msg) showErr(msg);
   }
 
+  // الجوال يمنع تشغيل الصوت تلقائياً أحياناً، فنعيد المحاولة ونعرض زر لو انمنع
+  function playRemote(){
+    const a = $("remoteAudio"); a.muted = false; a.volume = 1;
+    const p = a.play();
+    if (p && p.then) p.then(() => $("audioBtn").classList.add("hidden")).catch(() => $("audioBtn").classList.remove("hidden"));
+  }
+  $("audioBtn").onclick = playRemote;
+  ["click", "touchend"].forEach(ev => document.addEventListener(ev, () => {
+    const a = $("remoteAudio"); if (callState === "live" && a.srcObject && a.paused) playRemote();
+  }, { passive: true }));
+
   function setupCall(call){
     activeCall = call;
     call.on("stream", rs => {
-      const a = $("remoteAudio"); a.srcObject = rs; a.play().catch(() => {});
+      $("remoteAudio").srcObject = rs; playRemote();
       clearTimeout(callTimer); clearTimeout(goneTimer);
       callState = "live"; callUi();
     });

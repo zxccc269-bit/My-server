@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>WandSMP | سيرفر ماينكرافت</title>
 <meta name="description" content="سيرفر ماينكرافت عربي - انضم الآن والعب مع أصدقائك">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<meta name="theme-color" content="#090912">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap');
   :root{
@@ -104,13 +109,55 @@
   input:focus,textarea:focus,.accform input:focus{outline:2px solid rgba(227,182,90,.7)!important}
   #pinBar{background:linear-gradient(90deg,rgba(167,139,250,.22),rgba(227,182,90,.18));border-bottom:1px solid rgba(227,182,90,.3);padding:8px 20px;text-align:center;font-size:.92rem;font-weight:700}
   #callBar .ghost{margin-inline-start:4px}
+
+  /* ===== واجهة فخمة v2 ===== */
+  ::selection{background:#e3b65a;color:#1a1204}
+  html{scroll-behavior:smooth}
+  ::-webkit-scrollbar{width:10px}::-webkit-scrollbar-track{background:#090912}::-webkit-scrollbar-thumb{background:linear-gradient(#e3b65a,#8b5cf6);border-radius:10px}
+  nav ul a{position:relative;padding:4px 2px;transition:.2s}
+  nav ul a::after{content:"";position:absolute;inset:auto 0 -2px 0;height:2px;background:linear-gradient(90deg,#e3b65a,#a78bfa);transform:scaleX(0);transition:.25s}
+  nav ul a:hover{color:#f6dd9b}nav ul a:hover::after{transform:scaleX(1)}
+  .hero{position:relative;overflow:hidden;min-height:92vh;display:flex;align-items:center;justify-content:center;padding:90px 0 70px!important;background:radial-gradient(900px 500px at 50% 0%,rgba(139,92,246,.28),transparent 70%)!important}
+  .hero .wrap{position:relative;z-index:2}
+  #stars{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+  .orbs i{position:absolute;border-radius:50%;filter:blur(80px);opacity:.45;animation:float 14s ease-in-out infinite}
+  .orbs i:nth-child(1){width:420px;height:420px;background:#8b5cf6;top:-120px;right:-80px}
+  .orbs i:nth-child(2){width:360px;height:360px;background:#e3b65a;bottom:-140px;left:-60px;animation-delay:-5s;opacity:.28}
+  .orbs i:nth-child(3){width:260px;height:260px;background:#ec4899;top:40%;left:40%;animation-delay:-9s;opacity:.18}
+  @keyframes float{50%{transform:translate(40px,-30px) scale(1.12)}}
+  .badgePill{display:inline-block;padding:6px 20px;border-radius:50px;border:1px solid rgba(227,182,90,.5);background:rgba(227,182,90,.08);color:#f6dd9b;font-size:.9rem;font-weight:700;letter-spacing:1px;margin-bottom:18px;backdrop-filter:blur(8px)}
+  .hero h1{font-size:clamp(2.6rem,9vw,5.4rem)!important;line-height:1.15;font-weight:800;text-shadow:0 10px 60px rgba(139,92,246,.45)}
+  .hero h1 span{background:linear-gradient(90deg,#f6dd9b,#e3b65a,#a78bfa,#f6dd9b)!important;background-size:250% auto!important;-webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent;animation:shine 6s linear infinite}
+  @keyframes shine{to{background-position:250% center}}
+  .hero p{font-size:1.2rem!important;max-width:600px!important}
+  .ip-box{border-radius:60px!important;padding:8px 10px 8px 26px!important;background:rgba(255,255,255,.06)!important;backdrop-filter:blur(14px);border:1px solid rgba(227,182,90,.55)!important;animation:glow 3s ease-in-out infinite}
+  @keyframes glow{50%{box-shadow:0 0 38px rgba(227,182,90,.38)}}
+  .btn,.ip-box button{border-radius:50px!important;position:relative;overflow:hidden;margin:6px}
+  .btn::after,.ip-box button::after{content:"";position:absolute;top:0;left:-120%;width:60%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent);transform:skewX(-20deg);transition:.6s}
+  .btn:hover::after,.ip-box button:hover::after{left:140%}
+  .stats{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:30px}
+  .stats div{min-width:120px;padding:14px 22px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(10px)}
+  .stats b{display:block;font-size:1.6rem;background:linear-gradient(90deg,#f6dd9b,#e3b65a);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .stats span{color:var(--muted);font-size:.85rem}
+  section{position:relative;padding:80px 0!important}
+  section+section::before{content:"";position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(227,182,90,.5),transparent)}
+  h2{font-size:2.2rem!important;background:linear-gradient(90deg,#f6dd9b,#e3b65a,#a78bfa);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .card{border-radius:20px!important;border:1px solid transparent!important;background:linear-gradient(#14141f,#14141f) padding-box,linear-gradient(135deg,rgba(227,182,90,.55),rgba(139,92,246,.45)) border-box!important}
+  .card:hover{transform:translateY(-8px)!important;box-shadow:0 18px 50px rgba(139,92,246,.25),0 0 30px rgba(227,182,90,.12)!important}
+  .card .icon{width:58px;height:58px;display:grid;place-items:center;border-radius:16px;background:linear-gradient(135deg,rgba(227,182,90,.25),rgba(139,92,246,.25));font-size:1.7rem!important}
+  .rules li{border-radius:16px!important;backdrop-filter:blur(8px);transition:.2s}
+  .rules li:hover{transform:translateX(-6px);border-color:rgba(227,182,90,.5)!important}
+  footer{border-top:1px solid transparent!important;border-image:linear-gradient(90deg,transparent,#e3b65a,transparent) 1}
+  .rv{opacity:0;transform:translateY(28px);transition:opacity .8s ease,transform .8s ease}
+  .rv.in{opacity:1;transform:none}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
 </style>
 </head>
 <body>
 
 <nav>
   <div class="wrap">
-    <a href="#" class="logo">⛏ WandSMP</a>
+    <a href="#" class="logo">✦ WandSMP</a>
     <ul>
       <li><a href="#account">حسابي</a></li>
       <li><a href="#news">الأخبار</a></li>
@@ -124,7 +171,9 @@
 </nav>
 
 <header class="hero">
+  <div class="orbs"><i></i><i></i><i></i></div><canvas id="stars"></canvas>
   <div class="wrap">
+    <div class="badgePill">✦ سيرفر ماينكرافت عربي ✦</div>
     <h1>أهلاً بك في <span>WandSMP</span></h1>
     <p>سيرفر ماينكرافت عربي مليء بالمغامرات والفعاليات. ادخل الآن والعب مع أصدقائك!</p>
 
@@ -138,8 +187,15 @@
       <span id="statusText">جارٍ فحص حالة السيرفر...</span>
     </div>
 
+    <div class="stats">
+      <div><b id="stPlayers">—</b><span>لاعب متصل</span></div>
+      <div><b>1.21.x</b><span>الإصدار</span></div>
+      <div><b>24/7</b><span>تشغيل</span></div>
+    </div>
+
     <div style="margin-top:22px">
       <a class="btn fill" href="#account">🔐 سجّل حسابك / دخول</a>
+      <button class="btn" id="installBtn" style="cursor:pointer;font-family:inherit;font-size:1rem;background:transparent">📲 ثبّت التطبيق</button>
     </div>
   </div>
 </header>
@@ -254,6 +310,20 @@
   }
   applyIp();
 
+  // تثبيت الموقع كتطبيق (جوال وكمبيوتر)
+  let installEv = null;
+  window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEv = e; });
+  window.addEventListener("appinstalled", () => { installEv = null; document.getElementById("installBtn").style.display = "none"; });
+  if (window.matchMedia("(display-mode: standalone)").matches) document.getElementById("installBtn").style.display = "none";
+  document.getElementById("installBtn").addEventListener("click", async () => {
+    if (installEv) { installEv.prompt(); try { await installEv.userChoice; } catch {} installEv = null; return; }
+    const ua = navigator.userAgent;
+    alert(/iPhone|iPad|iPod/i.test(ua) ? "على الآيفون: افتح الموقع من Safari، اضغط زر المشاركة، ثم Add to Home Screen."
+      : /Android/i.test(ua) ? "على الأندرويد: اضغط القائمة ⋮ في كروم، ثم Install app أو Add to Home screen."
+      : "على الكمبيوتر: في كروم أو إيدج اضغط أيقونة التثبيت في شريط العنوان، أو القائمة ثم Install.");
+  });
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("firebase-messaging-sw.js").catch(() => {});
+
   document.getElementById("copyBtn").addEventListener("click", async (e) => {
     try { await navigator.clipboard.writeText(SERVER_IP); } catch {}
     const b = e.target; b.textContent = "تم النسخ ✓";
@@ -272,6 +342,7 @@
         if (d.online) {
           dot.className = "dot on";
           t.textContent = "السيرفر شغّال — " + d.players.online + " / " + d.players.max + " لاعب";
+          document.getElementById("stPlayers").textContent = d.players.online + "/" + d.players.max;
         } else {
           dot.className = "dot off";
           t.textContent = "السيرفر مغلق حالياً";
@@ -434,6 +505,35 @@
         .then(() => { $("newsForm").reset(); nm.textContent = "اننشر الخبر ✓"; })
         .catch(ex => { nm.textContent = "ما اننشر: " + (ex && ex.code || ex); });
     });
+  })();
+</script>
+<script>
+  // نجوم ذهبية متحركة في الواجهة + ظهور ناعم للأقسام عند التمرير
+  (function () {
+    const rm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const cv = document.getElementById("stars");
+    if (cv && !rm) {
+      const ctx = cv.getContext("2d"); let W, H, P = [];
+      const fit = () => { W = cv.width = cv.offsetWidth; H = cv.height = cv.offsetHeight; };
+      fit(); addEventListener("resize", fit);
+      const n = innerWidth < 600 ? 35 : 70;
+      for (let i = 0; i < n; i++) P.push({ x: Math.random() * 3000, y: Math.random() * 1200, r: Math.random() * 1.8 + .4, v: Math.random() * .35 + .1, a: Math.random() * 6.28, c: Math.random() > .35 ? "227,182,90" : "167,139,250" });
+      (function tick() {
+        ctx.clearRect(0, 0, W, H);
+        for (const p of P) {
+          p.y -= p.v; p.a += .02; if (p.y < -5) { p.y = H + 5; p.x = Math.random() * W; }
+          ctx.beginPath(); ctx.arc(p.x % W, p.y, p.r, 0, 6.28);
+          ctx.fillStyle = "rgba(" + p.c + "," + (.35 + Math.sin(p.a) * .3) + ")"; ctx.shadowBlur = 8; ctx.shadowColor = "rgb(" + p.c + ")"; ctx.fill();
+        }
+        requestAnimationFrame(tick);
+      })();
+    }
+    const els = document.querySelectorAll("section h2, section .card, .rules li, .btns");
+    els.forEach(e => e.classList.add("rv"));
+    if ("IntersectionObserver" in window) {
+      const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting) { x.target.classList.add("in"); io.unobserve(x.target); } }), { threshold: .12 });
+      els.forEach(e => io.observe(e));
+    } else els.forEach(e => e.classList.add("in"));
   })();
 </script>
 </body>

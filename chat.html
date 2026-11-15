@@ -154,6 +154,17 @@
 <div id="status" class="hidden"></div>
 <div id="err"></div>
 <div id="pinBar" class="hidden"></div>
+<div id="ringOverlay" class="hidden" style="position:fixed;inset:0;z-index:9999;background:rgba(5,5,12,.88);display:flex;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#241c3a;border:2px solid #e3b65a;border-radius:20px;padding:28px 24px;max-width:340px;width:100%;text-align:center;box-shadow:0 0 40px rgba(227,182,90,.35);animation:ringPulse 1s ease-in-out infinite">
+    <div style="font-size:54px;line-height:1">📞</div>
+    <div id="ringName" style="font-size:22px;font-weight:700;margin:12px 0 4px;color:#fff"></div>
+    <div style="opacity:.8;margin-bottom:20px">يتصل فيك...</div>
+    <div style="display:flex;gap:12px;justify-content:center">
+      <button class="main" id="ringAccept" style="padding:12px 26px;font-size:16px">قبول</button>
+      <button class="ghost red" id="ringDecline" style="padding:12px 26px;font-size:16px">رفض</button>
+    </div>
+  </div>
+</div>
 <div id="callBar" class="hidden" style="background:#241c3a;padding:10px 20px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap">
   <b id="callText"></b>
   <div class="row">
@@ -1833,18 +1844,22 @@
     try {
       if (!WORKER_URL || WORKER_URL.startsWith("ضع")) return;
       const idToken = await auth.currentUser.getIdToken();
-      fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ to: toUid, idToken }) }).catch(() => {});
-    } catch (e) {}
+      fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ to: toUid, idToken }) })
+        .then(r => r.json()).then(j => console.log("[push] رد الـ Worker:", j)).catch(e => console.warn("[push] فشل الاتصال بالـ Worker:", e));
+    } catch (e) { console.warn("[push] خطأ:", e); }
   }
   async function setupPush(){
     try {
-      if (pushDone || !myUid() || !("serviceWorker" in navigator) || !("Notification" in window) || Notification.permission !== "granted") return;
-      if (!VAPID_KEY || VAPID_KEY.startsWith("ضع")) return;
-      if (!(await firebase.messaging.isSupported())) return;
+      if (pushDone || !myUid()) return;
+      if (!("serviceWorker" in navigator) || !("Notification" in window)) { console.warn("[push] المتصفح ما يدعم الإشعارات"); return; }
+      if (Notification.permission !== "granted") { console.warn("[push] إذن الإشعارات:", Notification.permission); return; }
+      if (!VAPID_KEY || VAPID_KEY.startsWith("ضع")) { console.warn("[push] مفتاح VAPID ناقص"); return; }
+      if (!(await firebase.messaging.isSupported())) { console.warn("[push] Firebase Messaging غير مدعوم في هذا المتصفح"); return; }
       const reg = await navigator.serviceWorker.register("firebase-messaging-sw.js");
       const token = await firebase.messaging().getToken({ vapidKey: VAPID_KEY, serviceWorkerRegistration: reg });
-      if (token) { await db.ref("fcmTokens/" + myUid() + "/" + token).set(true); pushDone = true; }
-    } catch (e) {}
+      if (token) { await db.ref("fcmTokens/" + myUid() + "/" + token).set(true); pushDone = true; console.log("[push] تم تسجيل الجهاز للإشعارات"); }
+      else console.warn("[push] ما انعطى توكن");
+    } catch (e) { console.warn("[push] خطأ:", e && (e.code || e.message || e)); }
   }
   function unlockAudio(){
     getAudioCtx();
@@ -1968,6 +1983,8 @@
     else if (callState === "calling" && callWith) t = "📞 جاري الاتصال بـ " + callWith.name + "...";
     else if (callState === "live" && callWith) t = "🔊 متصل مع " + callWith.name;
     $("callText").textContent = t;
+    $("ringOverlay").classList.toggle("hidden", !(callState === "ringing" && incoming));
+    if (callState === "ringing" && incoming) $("ringName").textContent = incoming.name;
     if (callState === "ringing" && incoming) { ringStart(); notifyIncoming(incoming.name); } else ringStop();
     pipUi();
   }
@@ -2063,6 +2080,8 @@
   }
 
   $("callAccept").onclick = acceptCall;
+  $("ringAccept").onclick = acceptCall;
+  $("ringDecline").onclick = declineCall;
   $("callEnd").onclick = () => { if (callState === "ringing") declineCall(); else cleanupCall(); };
   $("callBtn").onclick = () => { if (other) startCall(other.uid, other.name); };
 </script>

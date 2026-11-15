@@ -1825,8 +1825,17 @@
   }
   // المتصفح يمنع الصوت قبل أول لمسة من المستخدم، فنفعّل الصوت ونطلب إذن الإشعارات عند أول ضغطة
   // مفتاح الإشعارات: Firebase ← Project settings ← Cloud Messaging ← Web Push certificates ← Generate key pair
-  const VAPID_KEY = "ضع_مفتاح_VAPID_هنا";
+  const VAPID_KEY = "BH9BD36IzvuUFAZXBhYJ01ezg9Q-lE1w4P2ngodcjVVO9tGd6ro0zlsILjfrT6BwOy-C7Q3yives0YPi9OxoU9o";
   let pushDone = false;
+  // رابط الـ Worker (بعد ما تنشره في Cloudflare حط رابطه هنا)
+  const WORKER_URL = "https://wandsmp-ring.mmnntt9999999.workers.dev";
+  async function ringPush(toUid){
+    try {
+      if (!WORKER_URL || WORKER_URL.startsWith("ضع")) return;
+      const idToken = await auth.currentUser.getIdToken();
+      fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ to: toUid, idToken }) }).catch(() => {});
+    } catch (e) {}
+  }
   async function setupPush(){
     try {
       if (pushDone || !myUid() || !("serviceWorker" in navigator) || !("Notification" in window) || Notification.permission !== "granted") return;
@@ -2019,6 +2028,7 @@
     peer.on("call", incomingMedia);
     peer.on("open", id => {
       db.ref("calls/" + uid + "/" + myUid()).set({ name: myName(), peer: id, time: TS })
+        .then(() => ringPush(uid))
         .catch(() => cleanupCall("ما انرسل الاتصال (لازم تكونون أصدقاء، وتأكد إنك حدّثت القواعد Rules)"));
     });
     const r = db.ref("calls/" + uid + "/" + myUid());

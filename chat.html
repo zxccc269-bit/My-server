@@ -154,6 +154,7 @@
 <div id="status" class="hidden"></div>
 <div id="err"></div>
 <div id="pinBar" class="hidden"></div>
+<div id="soundBar" class="hidden" style="position:fixed;top:0;left:0;right:0;z-index:10000;background:linear-gradient(90deg,#e3b65a,#f6dd9b);color:#1a1204;text-align:center;padding:12px 16px;font-weight:800;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.5)">🔔 اضغط هنا لتفعيل صوت رنين المكالمات</div>
 <div id="ringOverlay" class="hidden" style="position:fixed;inset:0;z-index:9999;background:rgba(5,5,12,.88);display:flex;align-items:center;justify-content:center;padding:20px">
   <div style="background:#241c3a;border:2px solid #e3b65a;border-radius:20px;padding:28px 24px;max-width:340px;width:100%;text-align:center;box-shadow:0 0 40px rgba(227,182,90,.35);animation:ringPulse 1s ease-in-out infinite">
     <div style="font-size:54px;line-height:1">📞</div>
@@ -1868,6 +1869,16 @@
   }
   document.addEventListener("click", unlockAudio);
   document.addEventListener("touchstart", unlockAudio, { passive: true });
+  // شريط يطلب لمسة وحدة لتفعيل الصوت (المتصفح يمنع الرنين قبل أول ضغطة)
+  function checkSound(){
+    const ok = !!audioCtx && audioCtx.state === "running";
+    const bar = document.getElementById("soundBar");
+    if (bar) bar.classList.toggle("hidden", ok || !myUid());
+  }
+  document.getElementById("soundBar").addEventListener("click", () => { unlockAudio(); setTimeout(checkSound, 200); });
+  document.addEventListener("click", () => setTimeout(checkSound, 300));
+  document.addEventListener("touchstart", () => setTimeout(checkSound, 300), { passive: true });
+  setInterval(checkSound, 1500);
 
   function ringBeep(){
     const c = getAudioCtx(); if (!c) return;

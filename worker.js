@@ -57,7 +57,7 @@ export default {
       "Access-Control-Allow-Headers": "Content-Type",
     };
     const reply = (obj, status = 200) =>
-      new Response(JSON.stringify(obj), { status, headers: { ...cors, "Content-Type": "application/json" } });
+      new Response(JSON.stringify({ v: 3, ...obj }), { status, headers: { ...cors, "Content-Type": "application/json" } });
 
     if (req.method === "OPTIONS") return new Response(null, { headers: cors });
     if (req.method !== "POST") return reply({ ok: false }, 405);
@@ -86,6 +86,7 @@ export default {
 
       // 4) أرسل
       let sent = 0;
+      const fails = [];
       await Promise.all(tokens.map(async (t) => {
         const r = await fetch(`https://fcm.googleapis.com/v1/projects/${PROJECT_ID}/messages:send`, {
           method: "POST",
@@ -93,18 +94,25 @@ export default {
           body: JSON.stringify({
             message: {
               token: t,
-              data: { name: String(call.name || "أحد").slice(0, 40), from },
+              data: { name: String(call.name || "أحد").slice(0, 40), caller: from },
               android: { priority: "high", ttl: "30s" },
               webpush: { headers: { Urgency: "high", TTL: "30" } },
             },
           }),
         });
-        if (r.ok) sent++;
-        else if (r.status === 404 || r.status === 400) {
-          // توكن ميت — نحذفه
+        if (r.ok) { sent++; return; }
+        let body = {};
+        try { body = await r.json(); } catch (e) {}
+        const status = (body.error && body.error.status) || r.status;
+        const msg = (body.error && body.error.message) || "";
+        fails.push({ status, msg: msg.slice(0, 120) });
+        // نحذف التوكن فقط لو FCM يقول إنه ميت فعلاً (مو لأي خطأ ثاني)
+        const dead = status === "NOT_FOUND" || status === "UNREGISTERED" || /registration token/i.test(msg);
+        if (dead) {
           await fetch(`${DB_URL}/fcmTokens/${encodeURIComponent(to)}/${encodeURIComponent(t)}.json?access_token=${at}`, { method: "DELETE" });
         }
       }));
+      if (fails.length) return reply({ ok: true, sent, tokens: tokens.length, fails });
       return reply({ ok: true, sent });
     } catch (e) {
       return reply({ ok: false, e: "server" }, 500);
